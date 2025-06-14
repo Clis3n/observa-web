@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name', 'Laravel') }} - Login</title>
+    <title>{{ config('app.name', 'OBSERVA') }} - Login</title>
 
     <!-- Ikon (Favicon) -->
     <link rel="icon" href="{{ asset('landing_assets/image/icon.svg') }}" type="image/svg+xml">
@@ -21,8 +21,11 @@
     <!-- QR Code Library -->
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <style>
-        /* Memastikan body menggunakan Poppins sebagai fallback jika Tailwind belum termuat */
-        body { font-family: 'Poppins', sans-serif; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            overflow: hidden;
+        }
     </style>
 
     <!-- PERBAIKAN: Pindahkan script handler ke head dan gunakan listener Alpine.js -->
@@ -118,7 +121,7 @@
 
             <!-- Tampilan Awal (Pilihan Login) -->
             <div x-show="!showQr" x-transition>
-                <h2 class="text-center text-2xl font-bold mb-2 text-gray-800">Login ke Akunmu</h2>
+                <h2 class="text-center text-2xl font-bold mb-2 text-gray-800">Masuk ke Akunmu</h2>
                 <p class="text-center text-gray-500 mb-8">Pilih salah satu metode untuk melanjutkan.</p>
 
                 <button @click="signInWithGoogle()" class="w-full flex items-center justify-center py-3 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-md font-medium text-gray-800 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-all duration-300">

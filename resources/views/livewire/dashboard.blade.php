@@ -1,4 +1,16 @@
 <div>
+    <!-- [BARU] Elemen Loading Overlay dikembalikan -->
+    <div x-data x-show="$store.dashboardState.isLoading"
+         x-transition:leave="transition ease-in duration-300"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="fixed inset-0 bg-gray-50 flex flex-col items-center justify-center z-50">
+        <div class="flex items-center space-x-4">
+            <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-yellow-500"></div>
+            <span class="text-xl font-semibold text-gray-700">Memuat Data dan Peta...</span>
+        </div>
+    </div>
+
     <!-- Polling data secara berkala -->
     <div wire:poll.15s.keep-alive="loadData"></div>
 
@@ -35,10 +47,11 @@
                             @elseif ($selectedItem['type'] === 'route' && isset($selectedItem['route']))
                                 <div class="flex items-center"><i class="fas fa-route w-5 text-center mr-2 text-gray-400"></i><span>{{ count($selectedItem['route']) }} titik rute</span></div>
                             @endif
-                            <div class="flex items-center"><i class="fas fa-calendar-alt w-5 text-center mr-2 text-gray-400"></i><span>{{ \Carbon\Carbon::parse($selectedItem['timestamp'])->translatedFormat('d F Y, H:i') }}</span></div>
+                            @if (isset($selectedItem['timestamp']))
+                                <div class="flex items-center"><i class="fas fa-calendar-alt w-5 text-center mr-2 text-gray-400"></i><span>{{ \Carbon\Carbon::parse($selectedItem['timestamp'])->translatedFormat('d F Y, H:i') }}</span></div>
+                            @endif
                         </div>
                         <div class="mt-6 flex space-x-3 border-t pt-5">
-                            <!-- PERBAIKAN: Tombol Edit diganti warnanya -->
                             <button wire:click="editItem('{{ $selectedItem['id'] }}')" class="w-full flex justify-center items-center px-4 py-2 text-sm font-semibold text-white bg-yellow-500 rounded-lg hover:bg-yellow-600 transition-colors"><i class="fas fa-edit mr-2"></i> Edit</button>
                             <button wire:click="deleteItem('{{ $selectedItem['id'] }}', '{{ $selectedItem['type'] }}')" wire:confirm="Anda yakin ingin menghapus item ini?" class="w-full flex justify-center items-center px-4 py-2 text-sm font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors"><i class="fas fa-trash mr-2"></i> Hapus</button>
                         </div>
@@ -50,7 +63,6 @@
                             <li wire:key="item-{{ $item['id'] }}" @click="$dispatch('item-selected-from-sidebar', { itemId: '{{ $item['id'] }}', type: '{{ $item['type'] }}' })" class="p-3 rounded-lg cursor-pointer hover:bg-yellow-50 bg-white border border-gray-200 hover:border-yellow-400 transition-all duration-200">
                                 <h3 class="font-semibold text-gray-800 truncate">{{ $item['title'] ?: 'Tanpa Judul' }}</h3>
                                 <div class="flex justify-between items-center text-xs text-gray-500 mt-1">
-                                    <!-- PERBAIKAN: Warna teks keterangan item -->
                                     <span class="flex items-center font-medium text-yellow-600">
                                         @if ($item['type'] === 'note')
                                             <i class="fas fa-map-marker-alt w-4 text-center mr-1.5"></i> Titik Lokasi
@@ -58,7 +70,9 @@
                                             <i class="fas fa-route w-4 text-center mr-1.5"></i> Rute
                                         @endif
                                     </span>
-                                    <span>{{ \Carbon\Carbon::parse($item['timestamp'])->diffForHumans() }}</span>
+                                    @if (isset($item['timestamp']))
+                                        <span>{{ \Carbon\Carbon::parse($item['timestamp'])->diffForHumans() }}</span>
+                                    @endif
                                 </div>
                             </li>
                         @empty
@@ -87,7 +101,6 @@
                 </div>
                 <div class="flex justify-end space-x-3 mt-6">
                     <button type="button" @click="show = false" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 font-semibold text-sm transition-colors">Batal</button>
-                    <!-- PERBAIKAN: Tombol Simpan diganti warnanya -->
                     <button type="submit" class="px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 font-semibold text-sm transition-colors">Simpan Perubahan</button>
                 </div>
             </form>
@@ -99,7 +112,23 @@
 
 @push('scripts')
 <script>
-    // Variabel global untuk menyimpan instance peta dan objek popup/marker
+    // [BARU] Definisikan Alpine store untuk mengelola state loading
+    document.addEventListener('alpine:init', () => {
+        Alpine.store('dashboardState', {
+            isLoading: true,
+            mapIsReady: false,
+            dataIsReady: false,
+
+            // Fungsi ini akan dipanggil setiap kali peta atau data selesai dimuat
+            checkIfDone() {
+                if (this.mapIsReady && this.dataIsReady) {
+                    this.isLoading = false; // Set loading ke false jika KEDUANYA sudah siap
+                    console.log('Loading Selesai: Peta dan Data siap.');
+                }
+            }
+        })
+    });
+
     window.mapInstance = null;
     window.mapMarkers = {};
 
@@ -107,10 +136,9 @@
         const title = item.title || 'Tanpa Judul';
         const description = item.description || 'Tidak ada deskripsi.';
         const type_text = item.type === 'note' ? 'Titik Lokasi' : 'Rute';
-        return `<div class="p-1"><h3 class="font-bold text-md text-gray-800">${title}</h3><span class="text-xs font-semibold uppercase px-2 py-0.5 rounded-full ${item.type === 'note' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'}">${type_text}</span><p class="text-gray-600 text-sm mt-2">${description}</p></div>`;
+        return `<div class="p-1"><h3 class="font-bold text-md text-gray-800">${title}</h3><span class="text-xs font-semibold uppercase px-2 py-0.5 rounded-full ${item.type === 'note' ? 'bg-yellow-100 text-yellow-800' : 'bg-purple-100 text-purple-800'}">${type_text}</span><p class="text-gray-600 text-sm mt-2">${description}</p></div>`;
     }
 
-    // Fungsi Inisialisasi Peta
     function initializeMap() {
         const mapElement = document.getElementById('map');
         if (!mapElement) return;
@@ -129,20 +157,19 @@
         });
 
         window.mapInstance.on('load', () => {
-            console.log('Peta diinisialisasi.');
+            console.log('Peta siap.');
+            // [BARU] Set flag mapIsReady dan cek status
+            Alpine.store('dashboardState').mapIsReady = true;
+            Alpine.store('dashboardState').checkIfDone();
             Livewire.dispatch('getInitialData');
         });
     }
 
-    // Inisialisasi peta saat halaman pertama kali dimuat
     document.addEventListener('DOMContentLoaded', initializeMap);
-
-    // [PERBAIKAN KUNCI] Inisialisasi ulang peta setiap kali Livewire melakukan navigasi
     document.addEventListener('livewire:navigated', initializeMap);
 
     document.addEventListener('item-selected-from-sidebar', event => {
-        const { itemId, type } = event.detail;
-        Livewire.dispatch('itemSelected', { itemId, type });
+        Livewire.dispatch('itemSelected', { ...event.detail });
     });
 
     Livewire.on('dataUpdated', ({ data }) => {
@@ -164,11 +191,7 @@
             }
             else if (item.type === 'route' && Array.isArray(item.route) && item.route.length > 1) {
                 const coordinates = item.route.map(p => [p.longitude, p.latitude]);
-                routeFeatures.push({
-                    'type': 'Feature',
-                    'properties': {},
-                    'geometry': { 'type': 'LineString', 'coordinates': coordinates }
-                });
+                routeFeatures.push({ 'type': 'Feature', 'properties': {}, 'geometry': { 'type': 'LineString', 'coordinates': coordinates }});
             }
         });
 
@@ -192,7 +215,12 @@
         }
     });
 
+    // [BARU] Listener initialDataLoaded sekarang juga mengontrol state loading
     Livewire.on('initialDataLoaded', ({ data }) => {
+        console.log('Data awal siap.');
+        Alpine.store('dashboardState').dataIsReady = true;
+        Alpine.store('dashboardState').checkIfDone();
+
         const map = window.mapInstance;
         if (!map || !data || data.length === 0) return;
 

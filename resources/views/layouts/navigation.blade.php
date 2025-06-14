@@ -29,10 +29,10 @@
                         </button>
                     </x-slot>
 
-                    <!-- PERBAIKAN: Konten dropdown diubah sesuai permintaan -->
                     <x-slot name="content">
                         <!-- User Email -->
                         <div class="px-4 py-3 border-b border-gray-200">
+                            <p class="text-sm text-gray-800 font-semibold">Masuk sebagai</p>
                             <p class="text-sm text-gray-600 truncate">
                                 {{ session('firebase_user_email', 'email@example.com') }}
                             </p>
@@ -54,6 +54,7 @@
                                                 this.closest('form').submit();">
                                 <div class="flex items-center text-red-600">
                                     <i class="fas fa-sign-out-alt w-4 text-center mr-2"></i>
+                                    <!-- PERBAIKAN: Mengganti 'Log Out' dengan 'Keluar' -->
                                     <span>{{ __('Keluar') }}</span>
                                 </div>
                             </x-dropdown-link>
@@ -76,7 +77,6 @@
 
     <!-- Responsive Navigation Menu (Mobile) -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
-        <!-- PERBAIKAN: Konten dropdown mobile juga diubah -->
         <div class="pt-4 pb-3 border-t border-gray-200">
             <div class="px-4 mb-3">
                 <div class="font-medium text-base text-gray-800">{{ session('firebase_user_name', 'User') }}</div>
@@ -91,13 +91,13 @@
                     </div>
                 </x-responsive-nav-link>
 
-                <!-- Authentication -->
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <x-responsive-nav-link :href="route('logout')" onclick="event.preventDefault(); this.closest('form').submit();">
                         <div class="flex items-center text-red-600">
                              <i class="fas fa-sign-out-alt w-5 text-center mr-3"></i>
-                             <span>{{ __('Log Out') }}</span>
+                             <!-- PERBAIKAN: Mengganti 'Log Out' dengan 'Keluar' -->
+                             <span>{{ __('Keluar') }}</span>
                         </div>
                     </x-responsive-nav-link>
                 </form>
