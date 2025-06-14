@@ -5,8 +5,9 @@ namespace App\Livewire;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
-use App\Services\FirebaseService; // Pastikan Anda punya service ini
+use App\Services\FirebaseService;
 use Illuminate\Support\Facades\Session;
+use Carbon\Carbon; // Pastikan Carbon diimpor
 
 #[Layout('layouts.app')]
 class Dashboard extends Component
@@ -14,13 +15,14 @@ class Dashboard extends Component
     public $notes = [];
     public $routes = [];
     public $combinedData = [];
-
-    // Properti ini kembali untuk mengontrol UI sidebar secara reaktif
     public ?array $selectedItem = null;
-
-    // Properti ini untuk mengontrol modal edit
     public bool $showEditModal = false;
-    public array $editingItem = []; // Data item yang sedang diedit di modal
+    public array $editingItem = [
+        'id' => '',
+        'type' => '',
+        'title' => '',
+        'description' => ''
+    ]; // Inisialisasi dengan struktur default
 
     protected $firebaseService;
 
@@ -31,6 +33,9 @@ class Dashboard extends Component
 
     public function mount()
     {
+        // PERBAIKAN: Inisialisasi variabel di sini untuk memastikan selalu ada
+        $this->selectedItem = null;
+        $this->showEditModal = false;
         // Data tidak dimuat di mount, tapi menunggu event dari JS
     }
 
@@ -68,10 +73,7 @@ class Dashboard extends Component
         $data = collect($this->combinedData)->firstWhere('id', $itemId);
 
         if ($data) {
-            // 1. Update properti untuk memicu re-render sidebar dan menampilkan detail
             $this->selectedItem = $data;
-
-            // 2. Kirim event ke JavaScript untuk melakukan zoom pada peta
             $this->dispatch('zoomToItem', item: $data);
         }
     }
@@ -85,7 +87,13 @@ class Dashboard extends Component
     {
         $itemToEdit = collect($this->combinedData)->firstWhere('id', $itemId);
         if ($itemToEdit) {
-            $this->editingItem = $itemToEdit;
+            // Pastikan semua field yang dibutuhkan oleh form ada
+            $this->editingItem = [
+                'id' => $itemToEdit['id'],
+                'type' => $itemToEdit['type'],
+                'title' => $itemToEdit['title'] ?? '',
+                'description' => $itemToEdit['description'] ?? '',
+            ];
             $this->showEditModal = true;
         }
     }
@@ -93,18 +101,28 @@ class Dashboard extends Component
     public function saveItem()
     {
         $this->validate([
-            'editingItem.title' => 'required|string|max:255',
+            'editingItem.title' => 'nullable|string|max:255',
             'editingItem.description' => 'nullable|string',
         ]);
 
         $userId = Session::get('firebase_user_id');
-        if (!isset($this->editingItem['id'])) return;
+        if (!isset($this->editingItem['id']) || empty($this->editingItem['id'])) {
+            session()->flash('error', 'Gagal menyimpan, ID item tidak ditemukan.');
+            return;
+        }
 
-        // Siapkan data untuk update
+        // Buat judul default jika kosong
+        $title = !empty(trim($this->editingItem['title'])) ? $this->editingItem['title'] : null;
+
         $updateData = [
-            'title' => $this->editingItem['title'],
+            'title' => $title,
             'description' => $this->editingItem['description'],
         ];
+
+        // Hapus nilai null agar tidak menimpa data yang ada di Firebase dengan null
+        $updateData = array_filter($updateData, function($value) {
+            return !is_null($value);
+        });
 
         if ($this->editingItem['type'] === 'note') {
             $this->firebaseService->updateNote($userId, $this->editingItem['id'], $updateData);
@@ -113,7 +131,7 @@ class Dashboard extends Component
         }
 
         $this->showEditModal = false;
-        $this->selectedItem = null; // Hapus seleksi agar list di-refresh
+        $this->selectedItem = null;
         $this->loadData();
         session()->flash('message', 'Data berhasil diperbarui.');
     }
@@ -128,7 +146,7 @@ class Dashboard extends Component
         $userId = Session::get('firebase_user_id');
         $this->firebaseService->deleteItem($userId, $type, $itemId);
 
-        $this->selectedItem = null; // Reset selectedItem setelah dihapus
+        $this->selectedItem = null;
         $this->loadData();
         session()->flash('message', 'Data berhasil dihapus.');
     }

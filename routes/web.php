@@ -14,17 +14,27 @@ use App\Livewire\Dashboard;
 |
 */
 
-// Rute untuk halaman login
-Route::get('/', [FirebaseLoginController::class, 'showLoginForm'])->name('login');
-Route::get('/login', [FirebaseLoginController::class, 'showLoginForm'])->name('login.show');
+// PERUBAHAN 1: Jadikan Landing Page sebagai Rute Utama (root)
+Route::get('/', function () {
+    return view('landing');
+})->name('landing'); // Beri nama rute 'landing'
 
-// Rute untuk memproses token dari frontend
+// PERUBAHAN 2: Pindahkan rute login ke '/login'
+// Rute untuk halaman login
+Route::get('/login', [FirebaseLoginController::class, 'showLoginForm'])->name('login');
+
+// PERUBAHAN 3: Rute 'login.show' tidak diperlukan lagi karena sudah tercakup oleh rute di atas.
+// Jika Anda masih membutuhkannya di tempat lain, Anda bisa biarkan, tapi biasanya duplikat.
+// Route::get('/login', [FirebaseLoginController::class, 'showLoginForm'])->name('login.show'); // Baris ini bisa dihapus atau dikomentari
+
+
+// Rute untuk memproses token dari frontend (TETAP SAMA)
 Route::post('/login/firebase', [FirebaseLoginController::class, 'handleLogin'])->name('login.firebase');
 
-// Rute untuk logout
+// Rute untuk logout (TETAP SAMA)
 Route::post('/logout', [FirebaseLoginController::class, 'handleLogout'])->name('logout');
 
-// Grup rute yang dilindungi.
+// Grup rute yang dilindungi (TETAP SAMA)
 Route::middleware(['firebase.auth'])->group(function () {
     // Halaman dashboard utama
     Route::get('/dashboard', Dashboard::class)->name('dashboard');
