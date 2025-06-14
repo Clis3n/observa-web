@@ -32,7 +32,6 @@
                     <x-slot name="content">
                         <!-- User Email -->
                         <div class="px-4 py-3 border-b border-gray-200">
-                            <p class="text-sm text-gray-800 font-semibold">Masuk sebagai</p>
                             <p class="text-sm text-gray-600 truncate">
                                 {{ session('firebase_user_email', 'email@example.com') }}
                             </p>

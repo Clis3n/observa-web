@@ -1,33 +1,45 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-<head>
-    <meta charset="utf-t">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+        <title>{{ config('app.name', 'Observa') }}</title>
 
-    <title>{{ config('app.name', 'OBSERVA') }}</title>
+        <!-- Ikon (Favicon) & Font Awesome -->
+        <link rel="icon" href="{{ asset('landing_assets/image/icon.svg') }}" type="image/svg+xml">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+        <!-- Fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Mapbox GL JS -->
-    <link href='https://api.mapbox.com/mapbox-gl-js/v3.4.0/mapbox-gl.css' rel='stylesheet' />
-    <script src='https://api.mapbox.com/mapbox-gl-js/v3.4.0/mapbox-gl.js'></script>
+        <!-- Vite (akan memuat semua CSS, termasuk Mapbox nanti) -->
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @livewireStyles
 
-    <!-- Scripts -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @livewireStyles
-</head>
-<body class="font-sans antialiased">
-    <div class="min-h-screen bg-gray-100">
-        @include('layouts.navigation')
+        <style>
+            body {
+                font-family: 'Poppins', sans-serif;
+                overflow-x: hidden;
+            }
+            .h-screen-minus-header { height: calc(100vh - 64px); }
+            /* Styling untuk popup dan kontrol peta bisa tetap di sini atau dipindah ke app.css */
+            .mapboxgl-popup-content { padding: 10px 15px; font-family: 'Poppins', sans-serif; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-radius: 8px; }
+            .mapboxgl-ctrl-logo, .mapboxgl-ctrl-attrib { display: none !important; }
+            .mapboxgl-ctrl-group:not(:empty) { display: none; }
+        </style>
+    </head>
+    <body class="font-sans antialiased bg-gray-100">
+        <div class="min-h-screen bg-gray-50">
+            @include('layouts.navigation')
+            <main>
+                {{ $slot }}
+            </main>
+        </div>
 
-        <!-- Page Content -->
-        <main>
-            {{ $slot }}
-        </main>
-    </div>
-    @livewireScripts
-</body>
+        @livewireScripts
+        @stack('scripts')
+    </body>
 </html>

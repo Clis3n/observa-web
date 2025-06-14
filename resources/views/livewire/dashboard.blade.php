@@ -1,5 +1,6 @@
-<div>
-    <!-- [BARU] Elemen Loading Overlay dikembalikan -->
+<div wire:poll.15s.keep-alive="@if(!$isEditMode) loadData @endif">
+
+    <!-- Loading Overlay -->
     <div x-data x-show="$store.dashboardState.isLoading"
          x-transition:leave="transition ease-in duration-300"
          x-transition:leave-start="opacity-100"
@@ -10,9 +11,6 @@
             <span class="text-xl font-semibold text-gray-700">Memuat Data dan Peta...</span>
         </div>
     </div>
-
-    <!-- Polling data secara berkala -->
-    <div wire:poll.15s.keep-alive="loadData"></div>
 
     <div class="h-screen-minus-header flex bg-gray-100 overflow-hidden">
         <!-- Sidebar -->
@@ -35,102 +33,120 @@
             <!-- Konten Sidebar (Bisa di-scroll) -->
             <div class="flex-grow overflow-y-auto">
                 @if ($selectedItem)
-                    <!-- Tampilan Detail -->
-                    <div class="p-5" wire:key="details-{{ $selectedItem['id'] }}">
-                        <button wire:click="clearSelection" class="flex items-center text-sm font-semibold text-yellow-600 hover:text-yellow-500 mb-4 transition-colors"><i class="fas fa-arrow-left mr-2"></i> Kembali ke Daftar</button>
-                        <h3 class="text-xl font-bold text-gray-900 break-words">{{ $selectedItem['title'] ?: 'Tanpa Judul' }}</h3>
-                        <span @class(['inline-block text-xs font-semibold uppercase px-2.5 py-1 rounded-full mt-2', 'bg-yellow-100 text-yellow-800'])>{{ $selectedItem['type'] === 'note' ? 'Titik Lokasi' : 'Rute' }}</span>
-                        <p class="mt-4 text-gray-600 text-sm break-words">{{ $selectedItem['description'] ?: 'Tidak ada deskripsi.' }}</p>
-                        <div class="mt-5 text-sm text-gray-600 border-t pt-4 space-y-2">
-                            @if ($selectedItem['type'] === 'note' && isset($selectedItem['latitude']))
-                                <div class="flex items-center"><i class="fas fa-map-marker-alt w-5 text-center mr-2 text-gray-400"></i><span>{{ number_format($selectedItem['latitude'], 5) }}, {{ number_format($selectedItem['longitude'], 5) }}</span></div>
-                            @elseif ($selectedItem['type'] === 'route' && isset($selectedItem['route']))
-                                <div class="flex items-center"><i class="fas fa-route w-5 text-center mr-2 text-gray-400"></i><span>{{ count($selectedItem['route']) }} titik rute</span></div>
-                            @endif
-                            @if (isset($selectedItem['timestamp']))
-                                <div class="flex items-center"><i class="fas fa-calendar-alt w-5 text-center mr-2 text-gray-400"></i><span>{{ \Carbon\Carbon::parse($selectedItem['timestamp'])->translatedFormat('d F Y, H:i') }}</span></div>
-                            @endif
-                        </div>
-                        <div class="mt-6 flex space-x-3 border-t pt-5">
-                            <button wire:click="editItem('{{ $selectedItem['id'] }}')" class="w-full flex justify-center items-center px-4 py-2 text-sm font-semibold text-white bg-yellow-500 rounded-lg hover:bg-yellow-600 transition-colors"><i class="fas fa-edit mr-2"></i> Edit</button>
-                            <button wire:click="deleteItem('{{ $selectedItem['id'] }}', '{{ $selectedItem['type'] }}')" wire:confirm="Anda yakin ingin menghapus item ini?" class="w-full flex justify-center items-center px-4 py-2 text-sm font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors"><i class="fas fa-trash mr-2"></i> Hapus</button>
-                        </div>
+                    <!-- Tampilan Detail atau Edit -->
+                    <div class="p-5" wire:key="item-view-{{ $selectedItem['id'] }}">
+
+                        @if ($isEditMode)
+                            <!-- TAMPILAN MODE EDIT SPASIAL -->
+                            <div wire:key="edit-{{ $selectedItem['id'] }}">
+                                <h3 class="text-xl font-bold text-gray-900">Edit Koordinat</h3>
+                                <p class="text-sm text-gray-500 mb-4">Geser di peta atau ketik manual.</p>
+
+                                @if ($selectedItem['type'] === 'note')
+                                <div class="space-y-3">
+                                    <div>
+                                        <label for="latitude" class="block text-xs font-medium text-gray-700">Latitude</label>
+                                        <input type="number" step="any" id="latitude" wire:model.live.debounce.500ms="selectedItem.latitude" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500 sm:text-sm">
+                                    </div>
+                                    <div>
+                                        <label for="longitude" class="block text-xs font-medium text-gray-700">Longitude</label>
+                                        <input type="number" step="any" id="longitude" wire:model.live.debounce.500ms="selectedItem.longitude" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500 sm:text-sm">
+                                    </div>
+                                </div>
+                                @else
+                                <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-700">
+                                    <i class="fas fa-info-circle mr-2"></i>
+                                    Untuk mengedit rute, silakan geser titik-titik (vertices) yang muncul pada peta.
+                                </div>
+                                @endif
+
+                                <div class="mt-6 flex space-x-3 border-t pt-5">
+                                    <button wire:click="cancelEditMode" class="w-full flex justify-center items-center px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors">Batal</button>
+                                    <button wire:click="saveSpatialChanges" class="w-full flex justify-center items-center px-4 py-2 text-sm font-semibold text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors"><i class="fas fa-save mr-2"></i> Simpan</button>
+                                </div>
+                            </div>
+                        @else
+                            <!-- TAMPILAN DETAIL NORMAL -->
+                            <div wire:key="details-{{ $selectedItem['id'] }}">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h3 class="text-xl font-bold text-gray-900 break-words">{{ $selectedItem['title'] ?: 'Tanpa Judul' }}</h3>
+                                        <span @class(['inline-block text-xs font-semibold uppercase px-2.5 py-1 rounded-full mt-2', 'bg-yellow-100 text-yellow-800'])>{{ $selectedItem['type'] === 'note' ? 'Titik Lokasi' : 'Rute' }}</span>
+                                    </div>
+                                    <button wire:click="clearSelection" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+                                </div>
+                                <p class="mt-4 text-gray-600 text-sm break-words">{{ $selectedItem['description'] ?: 'Tidak ada deskripsi.' }}</p>
+                                <div class="mt-5 text-sm text-gray-600 border-t pt-4 space-y-2">
+                                    @if ($selectedItem['type'] === 'note' && isset($selectedItem['latitude']))
+                                        <div class="flex items-center"><i class="fas fa-map-marker-alt w-5 text-center mr-2 text-gray-400"></i><span>{{ number_format($selectedItem['latitude'], 5) }}, {{ number_format($selectedItem['longitude'], 5) }}</span></div>
+                                    @elseif ($selectedItem['type'] === 'route' && isset($selectedItem['route']))
+                                        <div class="flex items-center"><i class="fas fa-route w-5 text-center mr-2 text-gray-400"></i><span>{{ count($selectedItem['route']) }} titik rute</span></div>
+                                    @endif
+                                    @if (isset($selectedItem['timestamp']))
+                                        <div class="flex items-center"><i class="fas fa-calendar-alt w-5 text-center mr-2 text-gray-400"></i><span>{{ \Carbon\Carbon::parse($selectedItem['timestamp'])->translatedFormat('d F Y, H:i') }}</span></div>
+                                    @endif
+                                </div>
+                                <div class="mt-6 flex space-x-3 border-t pt-5">
+                                    <button wire:click="enterEditMode" class="w-full flex justify-center items-center px-4 py-2 text-sm font-semibold text-white bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors"><i class="fas fa-map-marked-alt mr-2"></i> Edit Peta</button>
+                                    <button wire:click="editItem('{{ $selectedItem['id'] }}')" class="w-full flex justify-center items-center px-4 py-2 text-sm font-semibold text-white bg-yellow-500 rounded-lg hover:bg-yellow-600 transition-colors"><i class="fas fa-edit mr-2"></i> Edit Teks</button>
+                                </div>
+                                <div class="mt-3"><button wire:click="deleteItem('{{ $selectedItem['id'] }}', '{{ $selectedItem['type'] }}')" wire:confirm="Anda yakin ingin menghapus item ini?" class="w-full flex justify-center items-center px-4 py-2 text-sm font-semibold text-red-600 bg-red-100 rounded-lg hover:bg-red-200 transition-colors"><i class="fas fa-trash mr-2"></i> Hapus Item Ini</button></div>
+                            </div>
+                        @endif
                     </div>
                 @else
                     <!-- Tampilan Daftar -->
-                    <ul class="p-3 space-y-2">
-                        @forelse ($combinedData as $item)
-                            <li wire:key="item-{{ $item['id'] }}" @click="$dispatch('item-selected-from-sidebar', { itemId: '{{ $item['id'] }}', type: '{{ $item['type'] }}' })" class="p-3 rounded-lg cursor-pointer hover:bg-yellow-50 bg-white border border-gray-200 hover:border-yellow-400 transition-all duration-200">
-                                <h3 class="font-semibold text-gray-800 truncate">{{ $item['title'] ?: 'Tanpa Judul' }}</h3>
-                                <div class="flex justify-between items-center text-xs text-gray-500 mt-1">
-                                    <span class="flex items-center font-medium text-yellow-600">
-                                        @if ($item['type'] === 'note')
-                                            <i class="fas fa-map-marker-alt w-4 text-center mr-1.5"></i> Titik Lokasi
-                                        @else
-                                            <i class="fas fa-route w-4 text-center mr-1.5"></i> Rute
-                                        @endif
-                                    </span>
-                                    @if (isset($item['timestamp']))
-                                        <span>{{ \Carbon\Carbon::parse($item['timestamp'])->diffForHumans() }}</span>
-                                    @endif
-                                </div>
-                            </li>
-                        @empty
-                            <div class="text-center p-10 text-gray-500"><i class="fas fa-box-open text-4xl mb-3 text-gray-300"></i><p class="font-semibold">Tidak Ada Data</p><p class="text-sm">Data perjalananmu akan muncul di sini.</p></div>
-                        @endforelse
-                    </ul>
+                    <ul class="p-3 space-y-2">@forelse ($combinedData as $item)<li wire:key="item-{{ $item['id'] }}" @click="$dispatch('item-selected-from-sidebar', { itemId: '{{ $item['id'] }}' })" class="p-3 rounded-lg cursor-pointer hover:bg-yellow-50 bg-white border border-gray-200 hover:border-yellow-400 transition-all duration-200"><h3 class="font-semibold text-gray-800 truncate">{{ $item['title'] ?: 'Tanpa Judul' }}</h3><div class="flex justify-between items-center text-xs text-gray-500 mt-1"><span class="flex items-center font-medium text-yellow-600">@if ($item['type'] === 'note')<i class="fas fa-map-marker-alt w-4 text-center mr-1.5"></i> Titik Lokasi @else<i class="fas fa-route w-4 text-center mr-1.5"></i> Rute @endif</span>@if (isset($item['timestamp']))<span>{{ \Carbon\Carbon::parse($item['timestamp'])->diffForHumans() }}</span>@endif</div></li>@empty<div class="text-center p-10 text-gray-500"><i class="fas fa-box-open text-4xl mb-3 text-gray-300"></i><p class="font-semibold">Tidak Ada Data</p><p class="text-sm">Data perjalananmu akan muncul di sini.</p></div>@endforelse</ul>
                 @endif
             </div>
         </aside>
 
         <!-- Container Peta -->
-        <div wire:ignore class="hidden md:block flex-grow h-full">
-            <div id='map' class="w-full h-full"></div>
-        </div>
+        <div wire:ignore class="hidden md:block flex-grow h-full"><div id='map' class="w-full h-full"></div></div>
     </div>
 
-    <!-- Modal Edit -->
+    <!-- Modal Edit Teks-->
     @if($showEditModal)
-    <div x-data="{ show: @entangle('showEditModal').live }" x-show="show" x-on:keydown.escape.window="show = false" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 px-4" style="display: none;">
-        <div @click.away="show = false" class="relative bg-white rounded-lg shadow-xl w-full max-w-lg p-6">
-            <h3 class="text-xl font-bold text-gray-900 mb-4">Edit Item</h3>
-            <form wire:submit.prevent="saveItem">
-                <div class="space-y-4">
-                    <div><label for="title" class="block text-sm font-medium text-gray-700">Judul</label><input type="text" wire:model="editingItem.title" id="title" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500 sm:text-sm">@error('editingItem.title') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror</div>
-                    <div><label for="description" class="block text-sm font-medium text-gray-700">Deskripsi</label><textarea wire:model="editingItem.description" id="description" rows="4" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500 sm:text-sm"></textarea></div>
-                </div>
-                <div class="flex justify-end space-x-3 mt-6">
-                    <button type="button" @click="show = false" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 font-semibold text-sm transition-colors">Batal</button>
-                    <button type="submit" class="px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 font-semibold text-sm transition-colors">Simpan Perubahan</button>
-                </div>
-            </form>
+        <div x-data="{ show: @entangle('showEditModal').live }" x-show="show" x-on:keydown.escape.window="show = false" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 px-4" style="display: none;">
+            <div @click.away="show = false" class="relative bg-white rounded-lg shadow-xl w-full max-w-lg p-6">
+                <h3 class="text-xl font-bold text-gray-900 mb-4">Edit Item</h3>
+                <form wire:submit.prevent="saveItem">
+                    <div class="space-y-4">
+                        <div><label for="title" class="block text-sm font-medium text-gray-700">Judul</label><input type="text" wire:model="editingItem.title" id="title" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500 sm:text-sm">@error('editingItem.title') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror</div>
+                        <div><label for="description" class="block text-sm font-medium text-gray-700">Deskripsi</label><textarea wire:model="editingItem.description" id="description" rows="4" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500 sm:text-sm"></textarea></div>
+                    </div>
+                    <div class="flex justify-end space-x-3 mt-6">
+                        <button type="button" @click="show = false" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 font-semibold text-sm transition-colors">Batal</button>
+                        <button type="submit" class="px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 font-semibold text-sm transition-colors">Simpan Perubahan</button>
+                    </div>
+                </form>
+            </div>
         </div>
-    </div>
     @endif
 </div>
 
 
 @push('scripts')
 <script>
-    // [BARU] Definisikan Alpine store untuk mengelola state loading
     document.addEventListener('alpine:init', () => {
-        Alpine.store('dashboardState', {
-            isLoading: true,
-            mapIsReady: false,
-            dataIsReady: false,
-
-            // Fungsi ini akan dipanggil setiap kali peta atau data selesai dimuat
-            checkIfDone() {
-                if (this.mapIsReady && this.dataIsReady) {
-                    this.isLoading = false; // Set loading ke false jika KEDUANYA sudah siap
-                    console.log('Loading Selesai: Peta dan Data siap.');
+        if (!Alpine.store('dashboardState')) {
+            Alpine.store('dashboardState', {
+                isLoading: true,
+                mapIsReady: false,
+                dataIsReady: false,
+                checkIfDone() {
+                    if (this.mapIsReady && this.dataIsReady) {
+                        this.isLoading = false;
+                    }
                 }
-            }
-        })
+            });
+        }
     });
 
     window.mapInstance = null;
     window.mapMarkers = {};
+    window.drawInstance = null;
+    let editableFeatureId = null;
 
     function createPopupContent(item) {
         const title = item.title || 'Tanpa Judul';
@@ -143,105 +159,144 @@
         const mapElement = document.getElementById('map');
         if (!mapElement) return;
 
-        if (window.mapInstance) {
-            window.mapInstance.remove();
+        if (typeof window.mapboxgl === 'undefined' || typeof window.MapboxDraw === 'undefined') {
+            console.error("Mapbox libraries not loaded. Retrying...");
+            setTimeout(initializeMap, 100);
+            return;
         }
 
-        mapboxgl.accessToken = 'pk.eyJ1IjoiY2xpc2VuYXJkeWxha3Nvbm93aWNha3Nvbm8iLCJhIjoiY20zc25wbjFnMGZ2eTJxc2ZhY2JkZjZ5ayJ9.MxI1flsCYndt7aXbImXMQw';
+        if (window.mapInstance) window.mapInstance.remove();
 
-        window.mapInstance = new mapboxgl.Map({
-            container: 'map',
-            style: 'mapbox://styles/mapbox/streets-v12',
-            center: [110.3695, -7.7956],
-            zoom: 9
-        });
+        mapboxgl.accessToken = 'pk.eyJ1IjoiY2xpc2VuYXJkeWxha3Nvbm93aWNha3Nvbm8iLCJhIjoiY20zc25wbjFnMGZ2eTJxc2ZhY2JkZjZ5ayJ9.MxI1flsCYndt7aXbImXMQw';
+        window.mapInstance = new mapboxgl.Map({ container: 'map', style: 'mapbox://styles/mapbox/streets-v12', center: [110.3695, -7.7956], zoom: 9 });
+        window.drawInstance = new MapboxDraw({ displayControlsDefault: false });
+        window.mapInstance.addControl(window.drawInstance);
 
         window.mapInstance.on('load', () => {
-            console.log('Peta siap.');
-            // [BARU] Set flag mapIsReady dan cek status
             Alpine.store('dashboardState').mapIsReady = true;
             Alpine.store('dashboardState').checkIfDone();
             Livewire.dispatch('getInitialData');
+
+            window.mapInstance.on('draw.update', (e) => {
+                if (e.features.length > 0 && e.features[0].id === editableFeatureId) {
+                    const updatedCoords = e.features[0].geometry.coordinates;
+                    Livewire.dispatch('coordinatesUpdatedFromMap', { newCoords: updatedCoords });
+                }
+            });
         });
     }
 
-    document.addEventListener('DOMContentLoaded', initializeMap);
-    document.addEventListener('livewire:navigated', initializeMap);
+    function setupEventListeners() {
+        document.addEventListener('item-selected-from-sidebar', event => Livewire.dispatch('itemSelected', { ...event.detail }));
 
-    document.addEventListener('item-selected-from-sidebar', event => {
-        Livewire.dispatch('itemSelected', { ...event.detail });
-    });
-
-    Livewire.on('dataUpdated', ({ data }) => {
-        const map = window.mapInstance;
-        if (!map || !map.isStyleLoaded() || !data) return;
-
-        Object.values(window.mapMarkers).forEach(marker => marker.remove());
-        window.mapMarkers = {};
-        if (map.getLayer('routes-layer')) map.removeLayer('routes-layer');
-        if (map.getSource('routes')) map.removeSource('routes');
-
-        const routeFeatures = [];
-
-        data.forEach(item => {
-            if (item.type === 'note' && item.latitude && item.longitude) {
-                const popup = new mapboxgl.Popup({ offset: 25, closeButton: false }).setHTML(createPopupContent(item));
-                const marker = new mapboxgl.Marker({ color: '#FBBC05' }).setLngLat([item.longitude, item.latitude]).setPopup(popup).addTo(map);
-                window.mapMarkers[item.id] = marker;
-            }
-            else if (item.type === 'route' && Array.isArray(item.route) && item.route.length > 1) {
-                const coordinates = item.route.map(p => [p.longitude, p.latitude]);
-                routeFeatures.push({ 'type': 'Feature', 'properties': {}, 'geometry': { 'type': 'LineString', 'coordinates': coordinates }});
+        Livewire.on('dataUpdated', ({ data }) => {
+            const map = window.mapInstance;
+            if (!map || !map.isStyleLoaded() || !data) return;
+            Object.values(window.mapMarkers).forEach(marker => marker.remove());
+            window.mapMarkers = {};
+            if (map.getLayer('routes-layer')) map.removeLayer('routes-layer');
+            if (map.getSource('routes')) map.removeSource('routes');
+            const routeFeatures = [];
+            data.forEach(item => {
+                if (item.type === 'note' && item.latitude && item.longitude) {
+                    const popup = new mapboxgl.Popup({ offset: 25, closeButton: false }).setHTML(createPopupContent(item));
+                    const marker = new mapboxgl.Marker({ color: '#FBBC05' }).setLngLat([item.longitude, item.latitude]).setPopup(popup).addTo(map);
+                    window.mapMarkers[item.id] = marker;
+                } else if (item.type === 'route' && Array.isArray(item.route) && item.route.length > 1) {
+                    const coordinates = item.route.map(p => [p.longitude, p.latitude]);
+                    routeFeatures.push({ 'type': 'Feature', 'properties': {}, 'geometry': { 'type': 'LineString', 'coordinates': coordinates }});
+                }
+            });
+            if (routeFeatures.length > 0) {
+                map.addSource('routes', { 'type': 'geojson', 'data': { 'type': 'FeatureCollection', 'features': routeFeatures }});
+                map.addLayer({ 'id': 'routes-layer', 'type': 'line', 'source': 'routes', 'layout': { 'line-join': 'round', 'line-cap': 'round' }, 'paint': { 'line-color': '#FBBC05', 'line-width': 4, 'line-opacity': 0.8 }});
             }
         });
 
-        if (routeFeatures.length > 0) {
-            map.addSource('routes', { 'type': 'geojson', 'data': { 'type': 'FeatureCollection', 'features': routeFeatures }});
-            map.addLayer({ 'id': 'routes-layer', 'type': 'line', 'source': 'routes', 'layout': { 'line-join': 'round', 'line-cap': 'round' }, 'paint': { 'line-color': '#FBBC05', 'line-width': 4, 'line-opacity': 0.8 }});
-        }
-    });
-
-    Livewire.on('zoomToItem', ({ item }) => {
-        const map = window.mapInstance;
-        if (!map || !item) return;
-
-        if (item.type === 'note' && item.latitude && item.longitude) {
-            map.flyTo({ center: [item.longitude, item.latitude], zoom: 16, essential: true });
-            if(window.mapMarkers[item.id]) { setTimeout(() => window.mapMarkers[item.id].togglePopup(), 500); }
-        } else if (item.type === 'route' && Array.isArray(item.route) && item.route.length > 0) {
-            const coordinates = item.route.map(p => [p.longitude, p.latitude]);
-            const bounds = coordinates.reduce((b, coord) => b.extend(coord), new mapboxgl.LngLatBounds(coordinates[0], coordinates[0]));
-            map.fitBounds(bounds, { padding: 60, maxZoom: 16, essential: true });
-        }
-    });
-
-    // [BARU] Listener initialDataLoaded sekarang juga mengontrol state loading
-    Livewire.on('initialDataLoaded', ({ data }) => {
-        console.log('Data awal siap.');
-        Alpine.store('dashboardState').dataIsReady = true;
-        Alpine.store('dashboardState').checkIfDone();
-
-        const map = window.mapInstance;
-        if (!map || !data || data.length === 0) return;
-
-        const bounds = new mapboxgl.LngLatBounds();
-        let pointsAdded = 0;
-
-        data.forEach(item => {
+        Livewire.on('startMapEditing', ({ item }) => {
+            const map = window.mapInstance; const draw = window.drawInstance; if (!map || !draw || !item) return;
+            Object.values(window.mapMarkers).forEach(marker => marker.remove());
+            if (map.getLayer('routes-layer')) map.setLayoutProperty('routes-layer', 'visibility', 'none');
             if (item.type === 'note' && item.latitude && item.longitude) {
-                bounds.extend([item.longitude, item.latitude]);
-                pointsAdded++;
+                const draggableMarker = new mapboxgl.Marker({ color: '#EAB308', draggable: true }).setLngLat([item.longitude, item.latitude]).addTo(map);
+                draggableMarker.on('dragend', () => Livewire.dispatch('coordinatesUpdatedFromMap', { newCoords: draggableMarker.getLngLat() }));
+                window.mapMarkers[item.id] = draggableMarker;
             } else if (item.type === 'route' && Array.isArray(item.route)) {
-                item.route.forEach(p => {
-                    if (p.longitude && p.latitude) { bounds.extend([p.longitude, p.latitude]); pointsAdded++; }
-                });
+                const coordinates = item.route.map(p => [p.longitude, p.latitude]);
+                editableFeatureId = draw.add({ id: item.id, type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: coordinates }})[0];
+                draw.changeMode('direct_select', { featureId: editableFeatureId });
             }
         });
-        if (pointsAdded > 1) {
-            map.fitBounds(bounds, { padding: 50, duration: 1000, maxZoom: 15 });
-        } else if (pointsAdded === 1) {
-            map.flyTo({ center: bounds.getCenter(), zoom: 14, duration: 1000 });
+
+        Livewire.on('stopMapEditing', ({ item }) => {
+            const map = window.mapInstance; const draw = window.drawInstance; if (!map) return;
+            if (item && window.mapMarkers[item.id]) { window.mapMarkers[item.id].remove(); delete window.mapMarkers[item.id]; }
+            if (draw) draw.deleteAll();
+            if (map.getLayer('routes-layer')) map.setLayoutProperty('routes-layer', 'visibility', 'visible');
+            Livewire.dispatch('dataUpdated', { data: @json($this->combinedData) });
+        });
+
+        Livewire.on('itemCoordinatesUpdated', ({ item }) => {
+            if (item && item.type === 'note' && window.mapMarkers[item.id] && window.mapMarkers[item.id].setLngLat) {
+                window.mapMarkers[item.id].setLngLat([item.longitude, item.latitude]);
+            }
+        });
+
+        // [PERBAIKAN] Mengembalikan logika zoom yang hilang
+        Livewire.on('zoomToItem', ({ item }) => {
+            const map = window.mapInstance;
+            if (!map || !item) return;
+            if (item.type === 'note' && item.latitude && item.longitude) {
+                map.flyTo({ center: [item.longitude, item.latitude], zoom: 16, essential: true });
+                if(window.mapMarkers[item.id]) { setTimeout(() => window.mapMarkers[item.id].togglePopup(), 500); }
+            } else if (item.type === 'route' && Array.isArray(item.route) && item.route.length > 0) {
+                const coordinates = item.route.map(p => [p.longitude, p.latitude]);
+                const bounds = coordinates.reduce((b, coord) => b.extend(coord), new mapboxgl.LngLatBounds(coordinates[0], coordinates[0]));
+                map.fitBounds(bounds, { padding: 60, maxZoom: 16, essential: true });
+            }
+        });
+
+        // [PERBAIKAN] Mengembalikan logika zoom awal yang hilang
+        Livewire.on('initialDataLoaded', ({ data }) => {
+            Alpine.store('dashboardState').dataIsReady = true;
+            Alpine.store('dashboardState').checkIfDone();
+            const map = window.mapInstance;
+            if (!map || !data || data.length === 0) return;
+            const bounds = new mapboxgl.LngLatBounds();
+            let pointsAdded = 0;
+            data.forEach(item => {
+                if (item.type === 'note' && item.latitude && item.longitude) {
+                    bounds.extend([item.longitude, item.latitude]);
+                    pointsAdded++;
+                } else if (item.type === 'route' && Array.isArray(item.route)) {
+                    item.route.forEach(p => {
+                        if (p.longitude && p.latitude) {
+                            bounds.extend([p.longitude, p.latitude]);
+                            pointsAdded++;
+                        }
+                    });
+                }
+            });
+            if (pointsAdded > 1) {
+                map.fitBounds(bounds, { padding: 50, duration: 1000, maxZoom: 15 });
+            } else if (pointsAdded === 1) {
+                map.flyTo({ center: bounds.getCenter(), zoom: 14, duration: 1000 });
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initializeMap();
+        setupEventListeners();
+    });
+
+    document.addEventListener('livewire:navigated', () => {
+        if (Alpine.store('dashboardState')) {
+            Alpine.store('dashboardState').isLoading = true;
+            Alpine.store('dashboardState').mapIsReady = false;
+            Alpine.store('dashboardState').dataIsReady = false;
         }
+        initializeMap();
     });
 </script>
 @endpush
