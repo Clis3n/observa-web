@@ -6,7 +6,7 @@
     <title>Observa - Catat, Petakan, dan Bagikan Duniamu</title>
     <meta name="description" content="Observa adalah aplikasi pencatatan berbasis lokasi yang presisi, dirancang untuk surveyor, peneliti, dan petualang. Buat catatan, rekam rute, dan desain peta kustom dengan mudah.">
 
-    <!-- PERUBAHAN: Menggunakan helper asset() Laravel -->
+    <!-- Ikon untuk tab browser (Favicon) dari path lokal -->
     <link rel="icon" href="{{ asset('landing_assets/image/icon.svg') }}" type="image/svg+xml">
 
     <!-- Google Fonts: Poppins -->
@@ -36,7 +36,7 @@
 
         html {
             scroll-behavior: smooth;
-            scroll-padding-top: var(--header-height);
+            /* PERBAIKAN: scroll-padding-top dihapus dari sini agar JS bisa mengontrolnya secara penuh */
         }
 
         body {
@@ -438,92 +438,26 @@
 
         /* === Media Queries untuk Responsif === */
         @media (max-width: 992px) {
-            .hamburger {
-                display: block;
-            }
-
-            .hamburger.active .bar:nth-child(2) {
-                opacity: 0;
-            }
-
-            .hamburger.active .bar:nth-child(1) {
-                transform: translateY(8px) rotate(45deg);
-            }
-
-            .hamburger.active .bar:nth-child(3) {
-                transform: translateY(-8px) rotate(-45deg);
-            }
-
-            .nav-menu {
-                position: fixed;
-                left: -100%;
-                top: var(--header-height);
-                flex-direction: column;
-                background-color: var(--light-color);
-                width: 100%;
-                height: calc(100vh - var(--header-height));
-                text-align: center;
-                transition: 0.3s;
-                gap: 2rem;
-                padding-top: 2rem;
-            }
-
-            .nav-menu.active {
-                left: 0;
-            }
-
-            .nav-item {
-                margin: 16px 0;
-            }
+            .hamburger { display: block; }
+            .hamburger.active .bar:nth-child(2) { opacity: 0; }
+            .hamburger.active .bar:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+            .hamburger.active .bar:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+            .nav-menu { position: fixed; left: -100%; top: var(--header-height); flex-direction: column; background-color: var(--light-color); width: 100%; height: calc(100vh - var(--header-height)); text-align: center; transition: 0.3s; gap: 2rem; padding-top: 2rem; }
+            .nav-menu.active { left: 0; }
+            .nav-item { margin: 16px 0; }
         }
 
         @media (max-width: 768px) {
-            h1 {
-                font-size: 2.2rem;
-            }
-            h2 {
-                font-size: 1.8rem;
-            }
-
-            .full-screen, .hero {
-                min-height: auto;
-                height: auto;
-                padding: 5rem 2rem;
-            }
-
-            .hero {
-                padding-top: 3rem;
-                padding-bottom: 3rem;
-            }
-
-            .showcase-grid {
-                grid-template-columns: 1fr;
-                text-align: center;
-            }
-            .showcase-text {
-                padding: 0;
-                margin-bottom: 2rem;
-            }
-
-            .showcase-grid.reverse .showcase-text {
-                order: 1;
-                padding: 0;
-            }
-
-            .showcase-grid.reverse .showcase-image {
-                order: 2;
-            }
-
-            #navigation-arrows {
-                bottom: 1rem;
-                right: 1rem;
-            }
-
-            .nav-arrow {
-                width: 45px;
-                height: 45px;
-                font-size: 1rem;
-            }
+            h1 { font-size: 2.2rem; }
+            h2 { font-size: 1.8rem; }
+            .full-screen, .hero { min-height: auto; height: auto; padding: 5rem 2rem; }
+            .hero { padding-top: 3rem; padding-bottom: 3rem; }
+            .showcase-grid { grid-template-columns: 1fr; text-align: center; }
+            .showcase-text { padding: 0; margin-bottom: 2rem; }
+            .showcase-grid.reverse .showcase-text { order: 1; padding: 0; }
+            .showcase-grid.reverse .showcase-image { order: 2; }
+            #navigation-arrows { bottom: 1rem; right: 1rem; }
+            .nav-arrow { width: 45px; height: 45px; font-size: 1rem; }
         }
     </style>
 </head>
@@ -532,7 +466,6 @@
     <header class="header">
         <nav class="navbar container">
             <a href="#hero" class="logo">
-                <!-- PERUBAHAN: Menggunakan helper asset() Laravel -->
                 <img src="{{ asset('landing_assets/image/icon.svg') }}" alt="Observa Icon" class="logo-icon">
                 <span class="logo-text">
                     <span class="logo-black">OBSE</span><span class="logo-gold">RVA</span>
@@ -565,14 +498,12 @@
                         <a href="https://play.google.com/store/apps/details?id=com.observa.app" class="btn btn-primary" target="_blank">
                             <i class="fab fa-google-play"></i> Dapatkan di Google Play
                         </a>
-                        <!-- PERUBAHAN: Menggunakan helper route() Laravel untuk ke halaman login -->
-                        <a href="{{ route('login') }}" class="btn btn-secondary">
+                        <a href="{{ route('login') }}" class="btn btn-secondary" target="_blank">
                             <i class="fas fa-desktop"></i> Buka Versi Web
                         </a>
                     </div>
                 </div>
                 <div class="hero-image reveal">
-                    <!-- PERUBAHAN: Menggunakan helper asset() Laravel -->
                     <img src="{{ asset('landing_assets/image/hero-illustration.svg') }}" alt="Tampilan aplikasi Observa di smartphone">
                 </div>
             </div>
@@ -582,36 +513,12 @@
             <div class="container">
                 <h2 class="reveal">Fitur Unggulan</h2>
                 <div class="features-grid">
-                    <div class="feature-card reveal">
-                        <div class="icon"><i class="fas fa-map-marker-alt"></i></div>
-                        <h3>Pencatatan Presisi</h3>
-                        <p>Simpan catatan dengan koordinat, tanggal, waktu, dan deskripsi. Ambil lokasimu saat ini dengan sekali sentuh.</p>
-                    </div>
-                    <div class="feature-card reveal">
-                        <div class="icon"><i class="fas fa-route"></i></div>
-                        <h3>Perekaman Rute</h3>
-                        <p>Rekam perjalananmu secara otomatis dengan layanan latar belakang, dan visualisasikan rutemu langsung di peta.</p>
-                    </div>
-                    <div class="feature-card reveal">
-                        <div class="icon"><i class="fas fa-drafting-compass"></i></div>
-                        <h3>Editor Peta Kustom</h3>
-                        <p>Buat layout peta profesional. Tambahkan judul, legenda, skala, dan keterangan untuk ekspor menjadi gambar peta yang informatif.</p>
-                    </div>
-                    <div class="feature-card reveal">
-                        <div class="icon"><i class="fas fa-file-export"></i></div>
-                        <h3>Impor & Ekspor Fleksibel</h3>
-                        <p>Ekspor data ke Excel (.xlsx) untuk analisis, atau KML/KMZ untuk integrasi dengan software GIS seperti Google Earth & ArcGIS.</p>
-                    </div>
-                    <div class="feature-card reveal">
-                        <div class="icon"><i class="fas fa-cloud-upload-alt"></i></div>
-                        <h3>Sinkronisasi Cloud</h3>
-                        <p>Datamu aman dan tersinkronisasi dengan akun Google-mu. Akses catatan dan rutemu kapan saja.</p>
-                    </div>
-                    <div class="feature-card reveal">
-                        <div class="icon"><i class="fas fa-layer-group"></i></div>
-                        <h3>Manajemen Data Mudah</h3>
-                        <p>Kelola semua data titik dan rute dalam satu daftar. Lakukan pemilihan, hapus, dan ekspor data secara massal dengan mudah.</p>
-                    </div>
+                     <div class="feature-card reveal"><div class="icon"><i class="fas fa-map-marker-alt"></i></div><h3>Pencatatan Presisi</h3><p>Simpan catatan dengan koordinat, tanggal, waktu, dan deskripsi. Ambil lokasimu saat ini dengan sekali sentuh.</p></div>
+                     <div class="feature-card reveal"><div class="icon"><i class="fas fa-route"></i></div><h3>Perekaman Rute</h3><p>Rekam perjalananmu secara otomatis dengan layanan latar belakang, dan visualisasikan rutemu langsung di peta.</p></div>
+                     <div class="feature-card reveal"><div class="icon"><i class="fas fa-drafting-compass"></i></div><h3>Editor Peta Kustom</h3><p>Buat layout peta profesional. Tambahkan judul, legenda, skala, dan keterangan untuk ekspor menjadi gambar peta yang informatif.</p></div>
+                     <div class="feature-card reveal"><div class="icon"><i class="fas fa-file-export"></i></div><h3>Impor & Ekspor Fleksibel</h3><p>Ekspor data ke Excel (.xlsx) untuk analisis, atau KML/KMZ untuk integrasi dengan software GIS seperti Google Earth & ArcGIS.</p></div>
+                     <div class="feature-card reveal"><div class="icon"><i class="fas fa-cloud-upload-alt"></i></div><h3>Sinkronisasi Cloud</h3><p>Datamu aman dan tersinkronisasi dengan akun Google-mu. Akses catatan dan rutemu kapan saja.</p></div>
+                     <div class="feature-card reveal"><div class="icon"><i class="fas fa-layer-group"></i></div><h3>Manajemen Data Mudah</h3><p>Kelola semua data titik dan rute dalam satu daftar. Lakukan pemilihan, hapus, dan ekspor data secara massal dengan mudah.</p></div>
                 </div>
             </div>
         </section>
@@ -626,7 +533,6 @@
                         <a href="#features" class="btn btn-primary" style="margin-top: 1rem;">Lihat Semua Fitur</a>
                     </div>
                     <div class="showcase-image reveal">
-                        <!-- PERUBAHAN: Menggunakan helper asset() Laravel -->
                         <img src="{{ asset('landing_assets/image/showcase-1.svg') }}" alt="Contoh penggunaan aplikasi Observa">
                     </div>
                 </div>
@@ -647,7 +553,6 @@
                         </ul>
                     </div>
                     <div class="showcase-image reveal">
-                        <!-- PERUBAHAN: Menggunakan helper asset() Laravel -->
                         <img src="{{ asset('landing_assets/image/showcase-2.svg') }}" alt="Fitur editor peta di aplikasi Observa">
                     </div>
                 </div>
@@ -683,7 +588,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // --- Logika untuk animasi "reveal on scroll" ---
             const revealElements = document.querySelectorAll('.reveal');
             const revealObserver = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
@@ -695,7 +599,6 @@
             }, { threshold: 0.1 });
             revealElements.forEach(el => revealObserver.observe(el));
 
-            // --- Logika untuk Hamburger Menu ---
             const hamburger = document.querySelector(".hamburger");
             const navMenu = document.querySelector(".nav-menu");
             hamburger.addEventListener("click", () => {
@@ -721,7 +624,6 @@
                                 currentSectionIndex = index;
                             }
                         });
-
                         arrowUp.classList.toggle('hidden', currentSectionIndex === 0);
                         arrowDown.classList.toggle('hidden', currentSectionIndex === sections.length - 1);
                     }
@@ -737,10 +639,20 @@
                 }
             });
 
+            // [PERBAIKAN] Logika klik panah atas yang dikembalikan ke versi pertama
             arrowUp.addEventListener('click', (e) => {
                 e.preventDefault();
                 if (currentSectionIndex > 0) {
-                   sections[currentSectionIndex - 1].scrollIntoView({ behavior: 'smooth' });
+                    const targetSectionIndex = currentSectionIndex - 1;
+                    const targetSection = sections[targetSectionIndex];
+
+                    if (targetSection.id === 'hero') {
+                         // Scroll ke paling atas halaman (posisi 0)
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    } else {
+                        // Untuk section lain, gunakan metode biasa
+                        targetSection.scrollIntoView({ behavior: 'smooth' });
+                    }
                 }
             });
         });

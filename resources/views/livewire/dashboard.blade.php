@@ -1,5 +1,4 @@
 <div wire:poll.15s.keep-alive="@if(!$isEditMode) loadData @endif">
-
     <!-- Loading Overlay -->
     <div x-data x-show="$store.dashboardState.isLoading"
          x-transition:leave="transition ease-in duration-300"
@@ -131,14 +130,8 @@
     document.addEventListener('alpine:init', () => {
         if (!Alpine.store('dashboardState')) {
             Alpine.store('dashboardState', {
-                isLoading: true,
-                mapIsReady: false,
-                dataIsReady: false,
-                checkIfDone() {
-                    if (this.mapIsReady && this.dataIsReady) {
-                        this.isLoading = false;
-                    }
-                }
+                isLoading: true, mapIsReady: false, dataIsReady: false,
+                checkIfDone() { if (this.mapIsReady && this.dataIsReady) this.isLoading = false; }
             });
         }
     });
@@ -158,25 +151,18 @@
     function initializeMap() {
         const mapElement = document.getElementById('map');
         if (!mapElement) return;
-
         if (typeof window.mapboxgl === 'undefined' || typeof window.MapboxDraw === 'undefined') {
-            console.error("Mapbox libraries not loaded. Retrying...");
-            setTimeout(initializeMap, 100);
-            return;
+            setTimeout(initializeMap, 100); return;
         }
-
         if (window.mapInstance) window.mapInstance.remove();
-
         mapboxgl.accessToken = 'pk.eyJ1IjoiY2xpc2VuYXJkeWxha3Nvbm93aWNha3Nvbm8iLCJhIjoiY20zc25wbjFnMGZ2eTJxc2ZhY2JkZjZ5ayJ9.MxI1flsCYndt7aXbImXMQw';
         window.mapInstance = new mapboxgl.Map({ container: 'map', style: 'mapbox://styles/mapbox/streets-v12', center: [110.3695, -7.7956], zoom: 9 });
         window.drawInstance = new MapboxDraw({ displayControlsDefault: false });
         window.mapInstance.addControl(window.drawInstance);
-
         window.mapInstance.on('load', () => {
             Alpine.store('dashboardState').mapIsReady = true;
             Alpine.store('dashboardState').checkIfDone();
             Livewire.dispatch('getInitialData');
-
             window.mapInstance.on('draw.update', (e) => {
                 if (e.features.length > 0 && e.features[0].id === editableFeatureId) {
                     const updatedCoords = e.features[0].geometry.coordinates;
@@ -188,10 +174,8 @@
 
     function setupEventListeners() {
         document.addEventListener('item-selected-from-sidebar', event => Livewire.dispatch('itemSelected', { ...event.detail }));
-
         Livewire.on('dataUpdated', ({ data }) => {
-            const map = window.mapInstance;
-            if (!map || !map.isStyleLoaded() || !data) return;
+            const map = window.mapInstance; if (!map || !map.isStyleLoaded() || !data) return;
             Object.values(window.mapMarkers).forEach(marker => marker.remove());
             window.mapMarkers = {};
             if (map.getLayer('routes-layer')) map.removeLayer('routes-layer');
@@ -212,7 +196,6 @@
                 map.addLayer({ 'id': 'routes-layer', 'type': 'line', 'source': 'routes', 'layout': { 'line-join': 'round', 'line-cap': 'round' }, 'paint': { 'line-color': '#FBBC05', 'line-width': 4, 'line-opacity': 0.8 }});
             }
         });
-
         Livewire.on('startMapEditing', ({ item }) => {
             const map = window.mapInstance; const draw = window.drawInstance; if (!map || !draw || !item) return;
             Object.values(window.mapMarkers).forEach(marker => marker.remove());
@@ -227,7 +210,6 @@
                 draw.changeMode('direct_select', { featureId: editableFeatureId });
             }
         });
-
         Livewire.on('stopMapEditing', ({ item }) => {
             const map = window.mapInstance; const draw = window.drawInstance; if (!map) return;
             if (item && window.mapMarkers[item.id]) { window.mapMarkers[item.id].remove(); delete window.mapMarkers[item.id]; }
@@ -235,14 +217,11 @@
             if (map.getLayer('routes-layer')) map.setLayoutProperty('routes-layer', 'visibility', 'visible');
             Livewire.dispatch('dataUpdated', { data: @json($this->combinedData) });
         });
-
         Livewire.on('itemCoordinatesUpdated', ({ item }) => {
             if (item && item.type === 'note' && window.mapMarkers[item.id] && window.mapMarkers[item.id].setLngLat) {
                 window.mapMarkers[item.id].setLngLat([item.longitude, item.latitude]);
             }
         });
-
-        // [PERBAIKAN] Mengembalikan logika zoom yang hilang
         Livewire.on('zoomToItem', ({ item }) => {
             const map = window.mapInstance;
             if (!map || !item) return;
@@ -255,33 +234,17 @@
                 map.fitBounds(bounds, { padding: 60, maxZoom: 16, essential: true });
             }
         });
-
-        // [PERBAIKAN] Mengembalikan logika zoom awal yang hilang
         Livewire.on('initialDataLoaded', ({ data }) => {
             Alpine.store('dashboardState').dataIsReady = true;
             Alpine.store('dashboardState').checkIfDone();
-            const map = window.mapInstance;
-            if (!map || !data || data.length === 0) return;
-            const bounds = new mapboxgl.LngLatBounds();
-            let pointsAdded = 0;
+            const map = window.mapInstance; if (!map || !data || data.length === 0) return;
+            const bounds = new mapboxgl.LngLatBounds(); let pointsAdded = 0;
             data.forEach(item => {
-                if (item.type === 'note' && item.latitude && item.longitude) {
-                    bounds.extend([item.longitude, item.latitude]);
-                    pointsAdded++;
-                } else if (item.type === 'route' && Array.isArray(item.route)) {
-                    item.route.forEach(p => {
-                        if (p.longitude && p.latitude) {
-                            bounds.extend([p.longitude, p.latitude]);
-                            pointsAdded++;
-                        }
-                    });
-                }
+                if (item.type === 'note' && item.latitude && item.longitude) { bounds.extend([item.longitude, item.latitude]); pointsAdded++; }
+                else if (item.type === 'route' && Array.isArray(item.route)) { item.route.forEach(p => { if (p.longitude && p.latitude) { bounds.extend([p.longitude, p.latitude]); pointsAdded++; }});}
             });
-            if (pointsAdded > 1) {
-                map.fitBounds(bounds, { padding: 50, duration: 1000, maxZoom: 15 });
-            } else if (pointsAdded === 1) {
-                map.flyTo({ center: bounds.getCenter(), zoom: 14, duration: 1000 });
-            }
+            if (pointsAdded > 1) { map.fitBounds(bounds, { padding: 50, duration: 1000, maxZoom: 15 }); }
+            else if (pointsAdded === 1) { map.flyTo({ center: bounds.getCenter(), zoom: 14, duration: 1000 }); }
         });
     }
 
@@ -289,7 +252,6 @@
         initializeMap();
         setupEventListeners();
     });
-
     document.addEventListener('livewire:navigated', () => {
         if (Alpine.store('dashboardState')) {
             Alpine.store('dashboardState').isLoading = true;

@@ -16,12 +16,8 @@ class Dashboard extends Component
     public $routes = [];
     public $combinedData = [];
     public ?array $selectedItem = null;
-
-    // Properti untuk Mode Edit Spasial
     public bool $isEditMode = false;
     public ?array $originalItemState = null;
-
-    // Properti untuk Modal Edit Judul/Deskripsi
     public bool $showEditModal = false;
     public array $editingItem = [
         'id' => '', 'type' => '', 'title' => '', 'description' => ''
@@ -49,34 +45,21 @@ class Dashboard extends Component
     #[On('refresh-data')]
     public function loadData()
     {
-        // Jangan muat ulang data jika sedang dalam mode edit untuk mencegah override
-        if ($this->isEditMode) {
-            return;
-        }
-
+        if ($this->isEditMode) return;
         $userId = Session::get('firebase_user_id');
         if (!$userId) return;
-
         $this->notes = $this->firebaseService->getNotes($userId);
         $this->routes = $this->firebaseService->getRoutes($userId);
         $this->combinedData = array_merge($this->notes, $this->routes);
-
-        usort($this->combinedData, function ($a, $b) {
-            return strcmp($b['timestamp'] ?? '1970', $a['timestamp'] ?? '1970');
-        });
-
+        usort($this->combinedData, fn($a, $b) => strcmp($b['timestamp'] ?? '1970', $a['timestamp'] ?? '1970'));
         $this->dispatch('dataUpdated', data: $this->combinedData);
     }
 
     #[On('item-selected-from-sidebar')]
     public function selectItem($itemId)
     {
-        if ($this->isEditMode) {
-            $this->cancelEditMode();
-        }
-
+        if ($this->isEditMode) $this->cancelEditMode();
         $data = collect($this->combinedData)->firstWhere('id', $itemId);
-
         if ($data) {
             $this->selectedItem = $data;
             $this->dispatch('zoomToItem', item: $data);
@@ -85,19 +68,13 @@ class Dashboard extends Component
 
     public function clearSelection()
     {
-        // Jika sedang dalam mode edit, batalkan dulu sebelum membersihkan
-        if($this->isEditMode) {
-            $this->cancelEditMode();
-        }
+        if($this->isEditMode) $this->cancelEditMode();
         $this->selectedItem = null;
     }
-
-    // --- LOGIKA EDIT SPASIAL ---
 
     public function enterEditMode()
     {
         if (!$this->selectedItem) return;
-
         $this->isEditMode = true;
         $this->originalItemState = $this->selectedItem;
         $this->dispatch('startMapEditing', item: $this->selectedItem);
@@ -106,7 +83,6 @@ class Dashboard extends Component
     public function cancelEditMode()
     {
         if (!$this->originalItemState) return;
-
         $this->isEditMode = false;
         $this->selectedItem = $this->originalItemState;
         $this->originalItemState = null;
@@ -117,7 +93,6 @@ class Dashboard extends Component
     public function updateCoordinatesFromMap(array $newCoords)
     {
         if (!$this->isEditMode || !$this->selectedItem) return;
-
         if ($this->selectedItem['type'] === 'note') {
             $this->selectedItem['longitude'] = $newCoords['lng'];
             $this->selectedItem['latitude'] = $newCoords['lat'];
@@ -141,21 +116,24 @@ class Dashboard extends Component
         $itemId = $this->selectedItem['id'];
         $type = $this->selectedItem['type'];
 
-        $updateData = [];
+        // [PERBAIKAN] Ambil seluruh data dari item yang sedang diedit sebagai dasar
+        $updateData = $this->selectedItem;
+
         if ($type === 'note') {
             if (!is_numeric($this->selectedItem['latitude']) || !is_numeric($this->selectedItem['longitude'])) {
-                session()->flash('error', 'Latitude dan Longitude harus berupa angka.');
-                return;
+                session()->flash('error', 'Latitude dan Longitude harus berupa angka.'); return;
             }
-            $updateData = [
-                'latitude' => (float)$this->selectedItem['latitude'],
-                'longitude' => (float)$this->selectedItem['longitude'],
-            ];
+            // Timpa hanya data spasial dengan nilai baru
+            $updateData['latitude'] = (float)$this->selectedItem['latitude'];
+            $updateData['longitude'] = (float)$this->selectedItem['longitude'];
+
+            // Perbarui juga field 'place' agar konsisten
+            $updateData['place'] = $updateData['latitude'] . ", " . $updateData['longitude'];
+
             $this->firebaseService->updateNote($userId, $itemId, $updateData);
         } else {
-            $updateData = [
-                'route' => $this->selectedItem['route'],
-            ];
+            // Timpa hanya data spasial dengan nilai baru
+            $updateData['route'] = $this->selectedItem['route'];
             $this->firebaseService->updateRoute($userId, $itemId, $updateData);
         }
 
@@ -165,9 +143,6 @@ class Dashboard extends Component
         $this->dispatch('stopMapEditing');
         $this->loadData();
     }
-
-
-    // --- LOGIKA EDIT TEKSTUAL (MODAL) ---
 
     public function editItem($itemId)
     {
@@ -185,14 +160,25 @@ class Dashboard extends Component
         if (!isset($this->editingItem['id']) || empty($this->editingItem['id'])) {
             session()->flash('error', 'Gagal menyimpan, ID item tidak ditemukan.'); return;
         }
+
         $title = !empty(trim($this->editingItem['title'])) ? $this->editingItem['title'] : 'Tanpa Judul';
-        $updateData = array_filter(['title' => $title, 'description' => $this->editingItem['description']], fn($value) => !is_null($value));
+
+        $updateData = $this->editingItem;
+        $updateData['title'] = $title;
+        $updateData['description'] = $this->editingItem['description'];
+
+        unset($updateData['id']);
+        unset($updateData['type']);
+
         if ($this->editingItem['type'] === 'note') {
             $this->firebaseService->updateNote($userId, $this->editingItem['id'], $updateData);
         } else {
             $this->firebaseService->updateRoute($userId, $this->editingItem['id'], $updateData);
         }
-        $this->showEditModal = false; $this->selectedItem = null; $this->loadData();
+
+        $this->showEditModal = false;
+        $this->selectedItem = null;
+        $this->loadData();
         session()->flash('message', 'Data berhasil diperbarui.');
     }
 
