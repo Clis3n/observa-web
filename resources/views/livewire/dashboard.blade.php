@@ -38,18 +38,29 @@
                 @endif
             </div>
 
-            <!-- Panel Seleksi dan Ekspor [DIRIMBAK] -->
+            <!-- Panel Seleksi dan Ekspor -->
             @if($isSelectionMode)
             <div class="flex-shrink-0 p-3 border-b bg-white" x-data="{ open: false }" x-transition>
                 <div class="flex justify-between items-center">
-                    <div class="flex items-center">
-                        <input
-                            type="checkbox"
-                            id="select-all-checkbox"
-                            wire:click="selectAllItems"
-                            @if($selectAll) checked @endif
-                            class="h-5 w-5 rounded border-gray-300 text-yellow-600 focus:ring-yellow-500 cursor-pointer">
-                        <label for="select-all-checkbox" class="ml-3 text-sm font-medium text-gray-700 cursor-pointer" wire:click="selectAllItems">Pilih Semua</label>
+
+                    {{-- Tombol Cerdas untuk Pilih Semua / Batal Pilih Semua --}}
+                    <div>
+                        <button wire:click="toggleSelectAll"
+                                class="inline-flex items-center px-3 py-1.5 border text-xs font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500
+                                @if($this->areAllItemsSelected())
+                                    border-yellow-500 bg-yellow-50 text-yellow-700 hover:bg-yellow-100
+                                @else
+                                    border-gray-300 bg-white text-gray-700 hover:bg-gray-50
+                                @endif
+                                ">
+                            @if($this->areAllItemsSelected())
+                                <i class="fas fa-times-circle mr-2"></i>
+                                <span>Batal Pilih Semua</span>
+                            @else
+                                <i class="fas fa-check-square mr-2"></i>
+                                <span>Pilih Semua</span>
+                            @endif
+                        </button>
                     </div>
 
                     @if(!empty($selectedIds))
@@ -86,7 +97,7 @@
             <!-- Konten Sidebar (Bisa di-scroll) -->
             <div class="flex-grow overflow-y-auto">
                 @if ($selectedItem && !$isSelectionMode)
-                    <!-- Tampilan Detail atau Edit (Tidak berubah) -->
+                    <!-- Tampilan Detail atau Edit -->
                     <div class="p-5" wire:key="item-view-{{ $selectedItem['id'] }}">
                         @if ($isEditMode)
                             <!-- TAMPILAN MODE EDIT SPASIAL -->
@@ -131,26 +142,16 @@
                         @endif
                     </div>
                 @else
-                    <!-- Tampilan Daftar [DIRIMBAK] -->
+                    <!-- Tampilan Daftar -->
                     <ul class="p-3 space-y-2">
                         @forelse ($combinedData as $item)
                             <li wire:key="list-item-{{ $item['id'] }}"
-                                @class(['p-3 rounded-lg bg-white border transition-all duration-200 flex items-center',
+                                wire:click="handleItemClick('{{ $item['id'] }}', '{{ $item['type'] }}')"
+                                @class(['p-3 rounded-lg bg-white border transition-all duration-200 flex items-center cursor-pointer',
                                         'border-yellow-400 bg-yellow-50' => in_array($item['type'].':'.$item['id'], $selectedIds),
                                         'border-gray-200' => !in_array($item['type'].':'.$item['id'], $selectedIds)])
                             >
-
-                                @if($isSelectionMode)
-                                    <input
-                                        type="checkbox"
-                                        wire:key="checkbox-{{ $item['id'] }}"
-                                        wire:click="selectItemById('{{ $item['type'] }}:{{ $item['id'] }}')"
-                                        @if(in_array($item['type'].':'.$item['id'], $selectedIds)) checked @endif
-                                        class="h-5 w-5 rounded border-gray-300 text-yellow-600 focus:ring-yellow-500 flex-shrink-0 mr-4 cursor-pointer">
-                                @endif
-
-                                <div @if(!$isSelectionMode) @click="$dispatch('item-selected-from-sidebar', { itemId: '{{ $item['id'] }}' })" @endif
-                                     @class(['flex-grow', 'cursor-pointer' => !$isSelectionMode, 'cursor-default' => $isSelectionMode])>
+                                <div class="flex-grow">
                                     <h3 class="font-semibold text-gray-800 truncate">{{ $item['title'] ?: 'Tanpa Judul' }}</h3>
                                     <div class="flex justify-between items-center text-xs text-gray-500 mt-1">
                                         <span class="flex items-center font-medium text-yellow-600">
@@ -180,7 +181,7 @@
         @endforeach
     </form>
 
-    <!-- Modal Edit Teks (Tidak berubah) -->
+    <!-- Modal Edit Teks -->
     @if($showEditModal)
         <div x-data="{ show: @entangle('showEditModal').live }" x-show="show" x-on:keydown.escape.window="show = false" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 px-4" style="display: none;">
             <div @click.away="show = false" class="relative bg-white rounded-lg shadow-xl w-full max-w-lg p-6">
@@ -202,7 +203,7 @@
 
 
 @push('scripts')
-{{-- Script Anda tidak perlu diubah sama sekali --}}
+{{-- Script JavaScript tidak perlu diubah --}}
 <script>
     document.addEventListener('alpine:init', () => {
         if (!Alpine.store('dashboardState')) {
@@ -250,7 +251,6 @@
     }
 
     function setupEventListeners() {
-        document.addEventListener('item-selected-from-sidebar', event => Livewire.dispatch('itemSelected', { ...event.detail }));
         Livewire.on('dataUpdated', ({ data }) => {
             const map = window.mapInstance; if (!map || !map.isStyleLoaded() || !data) return;
             Object.values(window.mapMarkers).forEach(marker => marker.remove());
