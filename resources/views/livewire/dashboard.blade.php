@@ -43,16 +43,16 @@
             <div class="flex-shrink-0 p-3 border-b bg-white" x-data="{ open: false }" x-transition>
                 <div class="flex justify-between items-center">
 
-                    {{-- Tombol Cerdas untuk Pilih Semua / Batal Pilih Semua --}}
+                    {{-- Tombol Cerdas untuk Pilih Semua (SUDAH DIPERBAIKI) --}}
                     <div>
-                        <button wire:click="toggleSelectAll"
-                                class="inline-flex items-center px-3 py-1.5 border text-xs font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500
-                                @if($this->areAllItemsSelected())
-                                    border-yellow-500 bg-yellow-50 text-yellow-700 hover:bg-yellow-100
-                                @else
-                                    border-gray-300 bg-white text-gray-700 hover:bg-gray-50
-                                @endif
-                                ">
+                        <button
+                                wire:click="toggleSelectAll"
+                                @class([
+                                    'inline-flex items-center px-3 py-1.5 border text-xs font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500',
+                                    'border-yellow-500 bg-yellow-50 text-yellow-700 hover:bg-yellow-100' => $this->areAllItemsSelected(),
+                                    'border-gray-300 bg-white text-gray-700 hover:bg-gray-50' => !$this->areAllItemsSelected(),
+                                ])
+                        >
                             @if($this->areAllItemsSelected())
                                 <i class="fas fa-times-circle mr-2"></i>
                                 <span>Batal Pilih Semua</span>
