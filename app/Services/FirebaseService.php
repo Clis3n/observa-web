@@ -91,6 +91,40 @@ class FirebaseService
         return $noteRef->snapshot()->data();
     }
 
+    public function getCombinedItemsByIds($userId, array $typedIds)
+    {
+        $items = [];
+        foreach ($typedIds as $typedId) {
+            // Pastikan formatnya benar sebelum di-explode
+            if (strpos($typedId, ':') === false) continue;
+
+            [$type, $id] = explode(':', $typedId, 2);
+            $document = null;
+
+            try {
+                if ($type === 'note') {
+                    $document = $this->getNotesCollection($userId)->document($id)->snapshot();
+                } elseif ($type === 'route') {
+                    $document = $this->getRoutesCollection($userId)->document($id)->snapshot();
+                }
+            } catch (\Exception $e) {
+                // Abaikan jika dokumen tidak ditemukan atau ada error
+                continue;
+            }
+
+            if ($document && $document->exists()) {
+                $data = $document->data();
+                $data['id'] = $document->id();
+                $data['type'] = $type;
+                if (isset($data['timestamp']) && $data['timestamp'] instanceof Timestamp) {
+                    $data['timestamp'] = $data['timestamp']->get()->format('Y-m-d\TH:i:s\Z');
+                }
+                $items[] = $data;
+            }
+        }
+        return $items;
+    }
+
     public function updateRoute($userId, $routeId, $data)
     {
         $routeRef = $this->getRoutesCollection($userId)->document($routeId);

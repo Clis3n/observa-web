@@ -14,10 +14,64 @@
     <div class="h-screen-minus-header flex bg-gray-100 overflow-hidden">
         <!-- Sidebar -->
         <aside class="w-full md:w-[380px] h-full flex flex-col bg-white border-r border-gray-200 flex-shrink-0">
+
             <!-- Header Sidebar -->
             <div class="p-4 border-b flex justify-between items-center flex-shrink-0">
-                <h2 class="text-xl font-bold text-gray-800">Catatan Perjalanan</h2>
+                @if($isSelectionMode)
+                    <h2 class="text-xl font-bold text-gray-800">{{ count($selectedIds) }} item dipilih</h2>
+                @else
+                    <h2 class="text-xl font-bold text-gray-800">Catatan Perjalanan</h2>
+                @endif
+
+                @if(!empty($combinedData))
+                    <div>
+                        @if($isSelectionMode)
+                            <button wire:click="toggleSelectionMode" class="px-3 py-1 text-sm font-semibold text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors">
+                                Batal
+                            </button>
+                        @else
+                            <button wire:click="toggleSelectionMode" title="Pilih beberapa item untuk diekspor" class="px-3 py-1 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
+                                <i class="fas fa-check-double mr-2"></i> Pilih
+                            </button>
+                        @endif
+                    </div>
+                @endif
             </div>
+
+            <!-- Panel Seleksi dan Ekspor [DIRIMBAK] -->
+            @if($isSelectionMode)
+            <div class="flex-shrink-0 p-3 border-b bg-white" x-data="{ open: false }" x-transition>
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center">
+                        <input
+                            type="checkbox"
+                            id="select-all-checkbox"
+                            wire:click="selectAllItems"
+                            @if($selectAll) checked @endif
+                            class="h-5 w-5 rounded border-gray-300 text-yellow-600 focus:ring-yellow-500 cursor-pointer">
+                        <label for="select-all-checkbox" class="ml-3 text-sm font-medium text-gray-700 cursor-pointer" wire:click="selectAllItems">Pilih Semua</label>
+                    </div>
+
+                    @if(!empty($selectedIds))
+                        <div class="relative">
+                            <button @click="open = !open" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-yellow-500 hover:bg-yellow-600 focus:outline-none">
+                                <i class="fas fa-file-export mr-2"></i>
+                                Ekspor ({{ count($selectedIds) }})
+                                <i class="fas fa-chevron-down ml-2 -mr-1 h-3 w-3"></i>
+                            </button>
+                            <div x-show="open" @click.away="open = false" x-transition class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-20" style="display: none;">
+                                <div class="py-1" role="menu">
+                                    <span class="block px-4 py-2 text-xs text-gray-400 uppercase">Pilih Format</span>
+                                    <button @click="document.getElementById('exportForm').action='{{ route('export.excel') }}'; document.getElementById('exportForm').submit(); open = false" class="w-full text-left flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem"><i class="fas fa-file-excel w-5 mr-3 text-green-600"></i><span>Excel (.xlsx)</span></button>
+                                    <button @click="document.getElementById('exportForm').action='{{ route('export.kml') }}'; document.getElementById('exportForm').submit(); open = false" class="w-full text-left flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem"><i class="fas fa-globe-americas w-5 mr-3 text-blue-600"></i><span>Google Earth (.kml)</span></button>
+                                    <button @click="document.getElementById('exportForm').action='{{ route('export.kml', ['format' => 'kmz']) }}'; document.getElementById('exportForm').submit(); open = false" class="w-full text-left flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem"><i class="fas fa-file-archive w-5 mr-3 text-purple-600"></i><span>Google Earth (.kmz)</span></button>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+                </div>
+            </div>
+            @endif
 
             <!-- Pesan Notifikasi -->
             <div class="p-2 flex-shrink-0">
@@ -31,34 +85,22 @@
 
             <!-- Konten Sidebar (Bisa di-scroll) -->
             <div class="flex-grow overflow-y-auto">
-                @if ($selectedItem)
-                    <!-- Tampilan Detail atau Edit -->
+                @if ($selectedItem && !$isSelectionMode)
+                    <!-- Tampilan Detail atau Edit (Tidak berubah) -->
                     <div class="p-5" wire:key="item-view-{{ $selectedItem['id'] }}">
-
                         @if ($isEditMode)
                             <!-- TAMPILAN MODE EDIT SPASIAL -->
                             <div wire:key="edit-{{ $selectedItem['id'] }}">
                                 <h3 class="text-xl font-bold text-gray-900">Edit Koordinat</h3>
                                 <p class="text-sm text-gray-500 mb-4">Geser di peta atau ketik manual.</p>
-
                                 @if ($selectedItem['type'] === 'note')
                                 <div class="space-y-3">
-                                    <div>
-                                        <label for="latitude" class="block text-xs font-medium text-gray-700">Latitude</label>
-                                        <input type="number" step="any" id="latitude" wire:model.live.debounce.500ms="selectedItem.latitude" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500 sm:text-sm">
-                                    </div>
-                                    <div>
-                                        <label for="longitude" class="block text-xs font-medium text-gray-700">Longitude</label>
-                                        <input type="number" step="any" id="longitude" wire:model.live.debounce.500ms="selectedItem.longitude" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500 sm:text-sm">
-                                    </div>
+                                    <div><label for="latitude" class="block text-xs font-medium text-gray-700">Latitude</label><input type="number" step="any" id="latitude" wire:model.live.debounce.500ms="selectedItem.latitude" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500 sm:text-sm"></div>
+                                    <div><label for="longitude" class="block text-xs font-medium text-gray-700">Longitude</label><input type="number" step="any" id="longitude" wire:model.live.debounce.500ms="selectedItem.longitude" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500 sm:text-sm"></div>
                                 </div>
                                 @else
-                                <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-700">
-                                    <i class="fas fa-info-circle mr-2"></i>
-                                    Untuk mengedit rute, silakan geser titik-titik (vertices) yang muncul pada peta.
-                                </div>
+                                <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-700"><i class="fas fa-info-circle mr-2"></i>Untuk mengedit rute, silakan geser titik-titik (vertices) yang muncul pada peta.</div>
                                 @endif
-
                                 <div class="mt-6 flex space-x-3 border-t pt-5">
                                     <button wire:click="cancelEditMode" class="w-full flex justify-center items-center px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors">Batal</button>
                                     <button wire:click="saveSpatialChanges" class="w-full flex justify-center items-center px-4 py-2 text-sm font-semibold text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors"><i class="fas fa-save mr-2"></i> Simpan</button>
@@ -76,14 +118,9 @@
                                 </div>
                                 <p class="mt-4 text-gray-600 text-sm break-words">{{ $selectedItem['description'] ?: 'Tidak ada deskripsi.' }}</p>
                                 <div class="mt-5 text-sm text-gray-600 border-t pt-4 space-y-2">
-                                    @if ($selectedItem['type'] === 'note' && isset($selectedItem['latitude']))
-                                        <div class="flex items-center"><i class="fas fa-map-marker-alt w-5 text-center mr-2 text-gray-400"></i><span>{{ number_format($selectedItem['latitude'], 5) }}, {{ number_format($selectedItem['longitude'], 5) }}</span></div>
-                                    @elseif ($selectedItem['type'] === 'route' && isset($selectedItem['route']))
-                                        <div class="flex items-center"><i class="fas fa-route w-5 text-center mr-2 text-gray-400"></i><span>{{ count($selectedItem['route']) }} titik rute</span></div>
-                                    @endif
-                                    @if (isset($selectedItem['timestamp']))
-                                        <div class="flex items-center"><i class="fas fa-calendar-alt w-5 text-center mr-2 text-gray-400"></i><span>{{ \Carbon\Carbon::parse($selectedItem['timestamp'])->translatedFormat('d F Y, H:i') }}</span></div>
-                                    @endif
+                                    @if ($selectedItem['type'] === 'note' && isset($selectedItem['latitude']))<div class="flex items-center"><i class="fas fa-map-marker-alt w-5 text-center mr-2 text-gray-400"></i><span>{{ number_format($selectedItem['latitude'], 5) }}, {{ number_format($selectedItem['longitude'], 5) }}</span></div>@endif
+                                    @if ($selectedItem['type'] === 'route' && isset($selectedItem['route']))<div class="flex items-center"><i class="fas fa-route w-5 text-center mr-2 text-gray-400"></i><span>{{ count($selectedItem['route']) }} titik rute</span></div>@endif
+                                    @if (isset($selectedItem['timestamp']))<div class="flex items-center"><i class="fas fa-calendar-alt w-5 text-center mr-2 text-gray-400"></i><span>{{ \Carbon\Carbon::parse($selectedItem['timestamp'])->translatedFormat('d F Y, H:i') }}</span></div>@endif
                                 </div>
                                 <div class="mt-6 flex space-x-3 border-t pt-5">
                                     <button wire:click="enterEditMode" class="w-full flex justify-center items-center px-4 py-2 text-sm font-semibold text-white bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors"><i class="fas fa-map-marked-alt mr-2"></i> Edit Peta</button>
@@ -94,8 +131,39 @@
                         @endif
                     </div>
                 @else
-                    <!-- Tampilan Daftar -->
-                    <ul class="p-3 space-y-2">@forelse ($combinedData as $item)<li wire:key="item-{{ $item['id'] }}" @click="$dispatch('item-selected-from-sidebar', { itemId: '{{ $item['id'] }}' })" class="p-3 rounded-lg cursor-pointer hover:bg-yellow-50 bg-white border border-gray-200 hover:border-yellow-400 transition-all duration-200"><h3 class="font-semibold text-gray-800 truncate">{{ $item['title'] ?: 'Tanpa Judul' }}</h3><div class="flex justify-between items-center text-xs text-gray-500 mt-1"><span class="flex items-center font-medium text-yellow-600">@if ($item['type'] === 'note')<i class="fas fa-map-marker-alt w-4 text-center mr-1.5"></i> Titik Lokasi @else<i class="fas fa-route w-4 text-center mr-1.5"></i> Rute @endif</span>@if (isset($item['timestamp']))<span>{{ \Carbon\Carbon::parse($item['timestamp'])->diffForHumans() }}</span>@endif</div></li>@empty<div class="text-center p-10 text-gray-500"><i class="fas fa-box-open text-4xl mb-3 text-gray-300"></i><p class="font-semibold">Tidak Ada Data</p><p class="text-sm">Data perjalananmu akan muncul di sini.</p></div>@endforelse</ul>
+                    <!-- Tampilan Daftar [DIRIMBAK] -->
+                    <ul class="p-3 space-y-2">
+                        @forelse ($combinedData as $item)
+                            <li wire:key="list-item-{{ $item['id'] }}"
+                                @class(['p-3 rounded-lg bg-white border transition-all duration-200 flex items-center',
+                                        'border-yellow-400 bg-yellow-50' => in_array($item['type'].':'.$item['id'], $selectedIds),
+                                        'border-gray-200' => !in_array($item['type'].':'.$item['id'], $selectedIds)])
+                            >
+
+                                @if($isSelectionMode)
+                                    <input
+                                        type="checkbox"
+                                        wire:key="checkbox-{{ $item['id'] }}"
+                                        wire:click="selectItemById('{{ $item['type'] }}:{{ $item['id'] }}')"
+                                        @if(in_array($item['type'].':'.$item['id'], $selectedIds)) checked @endif
+                                        class="h-5 w-5 rounded border-gray-300 text-yellow-600 focus:ring-yellow-500 flex-shrink-0 mr-4 cursor-pointer">
+                                @endif
+
+                                <div @if(!$isSelectionMode) @click="$dispatch('item-selected-from-sidebar', { itemId: '{{ $item['id'] }}' })" @endif
+                                     @class(['flex-grow', 'cursor-pointer' => !$isSelectionMode, 'cursor-default' => $isSelectionMode])>
+                                    <h3 class="font-semibold text-gray-800 truncate">{{ $item['title'] ?: 'Tanpa Judul' }}</h3>
+                                    <div class="flex justify-between items-center text-xs text-gray-500 mt-1">
+                                        <span class="flex items-center font-medium text-yellow-600">
+                                            @if ($item['type'] === 'note')<i class="fas fa-map-marker-alt w-4 text-center mr-1.5"></i> Titik Lokasi @else<i class="fas fa-route w-4 text-center mr-1.5"></i> Rute @endif
+                                        </span>
+                                        @if (isset($item['timestamp']))<span>{{ \Carbon\Carbon::parse($item['timestamp'])->diffForHumans() }}</span>@endif
+                                    </div>
+                                </div>
+                            </li>
+                        @empty
+                            <div class="text-center p-10 text-gray-500"><i class="fas fa-box-open text-4xl mb-3 text-gray-300"></i><p class="font-semibold">Tidak Ada Data</p><p class="text-sm">Data perjalananmu akan muncul di sini.</p></div>
+                        @endforelse
+                    </ul>
                 @endif
             </div>
         </aside>
@@ -104,7 +172,15 @@
         <div wire:ignore class="hidden md:block flex-grow h-full"><div id='map' class="w-full h-full"></div></div>
     </div>
 
-    <!-- Modal Edit Teks-->
+    <!-- Form tersembunyi untuk submit ekspor -->
+    <form id="exportForm" method="POST" target="_blank" class="hidden">
+        @csrf
+        @foreach($selectedIds as $id)
+            <input type="hidden" name="selected_ids[]" value="{{ $id }}">
+        @endforeach
+    </form>
+
+    <!-- Modal Edit Teks (Tidak berubah) -->
     @if($showEditModal)
         <div x-data="{ show: @entangle('showEditModal').live }" x-show="show" x-on:keydown.escape.window="show = false" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 px-4" style="display: none;">
             <div @click.away="show = false" class="relative bg-white rounded-lg shadow-xl w-full max-w-lg p-6">
@@ -126,6 +202,7 @@
 
 
 @push('scripts')
+{{-- Script Anda tidak perlu diubah sama sekali --}}
 <script>
     document.addEventListener('alpine:init', () => {
         if (!Alpine.store('dashboardState')) {

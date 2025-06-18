@@ -38,4 +38,8 @@ Route::post('/logout', [FirebaseLoginController::class, 'handleLogout'])->name('
 Route::middleware(['firebase.auth'])->group(function () {
     // Halaman dashboard utama
     Route::get('/dashboard', Dashboard::class)->name('dashboard');
+
+    // [BARU] Rute untuk Ekspor Data
+    Route::post('/export/excel', [App\Http\Controllers\ExportController::class, 'exportExcel'])->name('export.excel');
+    Route::post('/export/kml/{format?}', [App\Http\Controllers\ExportController::class, 'exportKml'])->name('export.kml');
 });
