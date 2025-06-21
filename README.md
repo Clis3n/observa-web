@@ -1,18 +1,20 @@
 <p align="center">
-  <!-- Tautan gambar sudah diperbaiki ke lokasi yang benar di repo Anda -->
   <img src="https://raw.githubusercontent.com/Clis3n/observa-web/main/public/landing_assets/image/icon.svg" alt="Observa Logo" width="120">
 </p>
 
 <h1 align="center">Observa Web</h1>
 
 <p align="center">
-  Versi web resmi dari aplikasi Observa. Pantau, analisis, dan kelola data Anda langsung dari browser.
+  Versi web resmi dari aplikasi Observa. Dibangun dengan Laravel dan Firebase untuk memantau, menganalisis, dan mengelola data Anda langsung dari browser.
 </p>
 
 <p align="center">
-  <!-- Badges/Lencana -->
-  <a href="https://svelte.dev">
-    <img src="https://img.shields.io/badge/Built%20with-SvelteKit-ff3e00.svg?style=for-the-badge&logo=svelte" alt="Built with SvelteKit">
+  <!-- Badges/Lencana yang Akurat -->
+  <a href="https://laravel.com">
+    <img src="https://img.shields.io/badge/Framework-Laravel-FF2D20.svg?style=for-the-badge&logo=laravel" alt="Built with Laravel">
+  </a>
+  <a href="https://firebase.google.com">
+    <img src="https://img.shields.io/badge/Backend-Firebase-ffca28.svg?style=for-the-badge&logo=firebase" alt="Powered by Firebase">
   </a>
   <a href="https://tailwindcss.com">
     <img src="https://img.shields.io/badge/Styled%20with-TailwindCSS-06B6D4.svg?style=for-the-badge&logo=tailwindcss" alt="Styled with TailwindCSS">
@@ -26,9 +28,9 @@
 
 ## 📖 Tentang Proyek
 
-**Observa Web** adalah platform berbasis web yang dirancang sebagai pelengkap dari aplikasi mobile **Observa** di Android. Proyek ini bertujuan untuk memberikan aksesibilitas yang lebih luas kepada pengguna, memungkinkan mereka untuk mengakses dan mengelola data observasi mereka dari perangkat apa pun dengan browser, baik itu desktop, laptop, maupun tablet.
+**Observa Web** adalah platform berbasis web yang dirancang sebagai pelengkap dari aplikasi mobile **Observa** di Android. Proyek ini memberikan aksesibilitas yang lebih luas, memungkinkan pengguna untuk mengelola data observasi mereka dari perangkat apa pun dengan browser.
 
-Dibangun dengan teknologi web modern seperti **SvelteKit** dan **Tailwind CSS**, Observa Web menawarkan antarmuka yang cepat, responsif, dan intuitif.
+Platform ini dibangun di atas fondasi yang kokoh menggunakan **Framework Laravel**, dengan integrasi ke **Firebase** untuk otentikasi dan manajemen data secara real-time, serta antarmuka yang modern menggunakan **Tailwind CSS**.
 
 <br>
 
@@ -52,70 +54,91 @@ Dengan aplikasi mobile, Anda akan mendapatkan:
 
 -   **📊 Dasbor Analitik**: Visualisasikan data Anda dengan grafik dan bagan yang informatif.
 -   **🗂️ Manajemen Data**: Buat, lihat, edit, dan hapus data observasi dengan mudah.
--   **🔒 Otentikasi Aman**: Sistem login untuk menjaga keamanan dan privasi data Anda.
+-   **🔒 Otentikasi Aman**: Sistem login yang aman menggunakan Firebase Authentication.
 -   **📱 Desain Responsif**: Tampilan yang menyesuaikan dengan sempurna di berbagai ukuran layar.
--   **🔄 Sinkronisasi Data**: Data yang Anda masukkan di web akan tersinkronisasi dengan aplikasi mobile Anda (dan sebaliknya).
--   **⬇️ Ekspor Data**: Unduh data Anda dalam format seperti CSV atau JSON untuk analisis lebih lanjut.
+-   **🔄 Sinkronisasi Data**: Data yang Anda masukkan di web akan tersinkronisasi dengan aplikasi mobile Anda (dan sebaliknya) melalui Firebase.
 
 <br>
 
 ## 📸 Tampilan Aplikasi Web
 
 <p align="center">
-  <!-- Tautan gambar sudah diperbaiki ke lokasi yang benar di repo Anda -->
-  <img src="https://raw.githubusercontent.com/Clis3n/observa-web/main/public/landing_assets/image/showcase-1.svg" alt="Tampilan Showcase 1" width="48%">
+  <img src="https://raw.githubusercontent.com/Clis3n/observa-web/main/public/landing_assets/image/image-1.png" alt="Tampilan Showcase 1" width="48%">
    
-  <img src="https://raw.githubusercontent.com/Clis3n/observa-web/main/public/landing_assets/image/showcase-2.svg" alt="Tampilan Showcase 2" width="48%">
+  <img src="https://raw.githubusercontent.com/Clis3n/observa-web/main/public/landing_assets/image/image-2.png" alt="Tampilan Showcase 2" width="48%">
 </p>
 
 <br>
 
 ## 🛠️ Teknologi yang Digunakan
 
-Proyek ini dibangun menggunakan stack teknologi modern yang berfokus pada kecepatan dan pengalaman developer.
-
--   **Framework**: [SvelteKit](https://kit.svelte.dev/)
--   **Styling**: [Tailwind CSS](https://tailwindcss.com/)
--   **Bahasa**: [TypeScript](https://www.typescriptlang.org/)
--   **Deployment**: [Vercel](https://vercel.com/) / [Netlify](https://www.netlify.com/)
+-   **Backend Framework**: [Laravel](https://laravel.com/)
+-   **Backend Service & Database**: [Google Firebase](https://firebase.google.com/) (menggunakan paket `kreait/laravel-firebase`)
+-   **Frontend**: [Blade Templates](https://laravel.com/docs/blade) & [Tailwind CSS](https://tailwindcss.com/)
+-   **Build Tool**: [Vite](https://vitejs.dev/)
 
 <br>
 
 ## 🚀 Memulai (Getting Started)
 
-Ingin menjalankan proyek ini secara lokal di komputer Anda? Ikuti langkah-langkah sederhana di bawah ini.
+Ikuti langkah-langkah berikut untuk menjalankan proyek ini di lingkungan lokal Anda.
 
 ### Prasyarat
 
-Pastikan Anda sudah menginstal:
-*   [Node.js](https://nodejs.org/) (versi 18 atau lebih tinggi)
-*   `npm` atau `pnpm` atau `yarn`
+Pastikan Anda telah menginstal perangkat lunak berikut:
+*   **PHP** (versi 8.1 atau lebih tinggi)
+*   **Composer**
+*   **Node.js** dan **npm**
 
-### Instalasi
+### Instalasi & Konfigurasi
 
 1.  **Clone repositori ini:**
     ```bash
     git clone https://github.com/Clis3n/observa-web.git
-    ```
-
-2.  **Masuk ke direktori proyek:**
-    ```bash
     cd observa-web
     ```
 
-3.  **Instal semua dependencies:**
+2.  **Instal dependencies PHP via Composer:**
+    ```bash
+    composer install
+    ```
+
+3.  **Instal dependencies JavaScript via npm:**
     ```bash
     npm install
-    # atau jika menggunakan pnpm
-    # pnpm install
     ```
 
-4.  **Jalankan development server:**
+4.  **Buat file environment:**
+    Salin file `.env.example` menjadi `.env`.
     ```bash
-    npm run dev
+    cp .env.example .env
     ```
 
-5.  Buka browser Anda dan kunjungi `http://localhost:5173` untuk melihat aplikasi berjalan.
+5.  **Generate application key:**
+    ```bash
+    php artisan key:generate
+    ```
+
+6.  **Konfigurasi Firebase:**
+    *   Buka file `.env` yang baru Anda buat.
+    *   Unduh file kredensial *service account* (JSON) dari proyek Firebase Anda.
+    *   Atur variabel `FIREBASE_CREDENTIALS` di file `.env` dengan menunjuk ke path file JSON tersebut.
+      ```env
+      FIREBASE_CREDENTIALS=/path/to/your/firebase_credentials.json
+      ```
+
+7.  **Jalankan Server:**
+    *   Buka **dua terminal** terpisah di direktori proyek.
+    *   Di terminal pertama, jalankan server development Laravel:
+      ```bash
+      php artisan serve
+      ```
+    *   Di terminal kedua, jalankan Vite untuk meng-compile aset frontend:
+      ```bash
+      npm run dev
+      ```
+
+8.  Buka browser Anda dan kunjungi `http://127.0.0.1:8000`.
 
 <br>
 
