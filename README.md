@@ -1,165 +1,179 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Clis3n/observa-web/main/public/landing_assets/image/hero-illustration.svg" alt="Observa Logo" width="120">
+  <img src="https://raw.githubusercontent.com/Clis3n/observa-web/main/public/landing_assets/image/icon.svg" width="100" alt="Observa Logo">
 </p>
 
 <h1 align="center">Observa Web</h1>
 
 <p align="center">
-  Versi web resmi dari aplikasi Observa. Dibangun dengan Laravel dan Firebase untuk memantau, menganalisis, dan mengelola data Anda langsung dari browser.
+  <strong>Versi Web dari Aplikasi Android Observa</strong>
 </p>
 
 <p align="center">
   <!-- Badges/Lencana yang Akurat -->
-  <a href="https://laravel.com">
-    <img src="https://img.shields.io/badge/Framework-Laravel-FF2D20.svg?style=for-the-badge&logo=laravel" alt="Built with Laravel">
-  </a>
-  <a href="https://firebase.google.com">
-    <img src="https://img.shields.io/badge/Backend-Firebase-ffca28.svg?style=for-the-badge&logo=firebase" alt="Powered by Firebase">
-  </a>
-  <a href="https://tailwindcss.com">
-    <img src="https://img.shields.io/badge/Styled%20with-TailwindCSS-06B6D4.svg?style=for-the-badge&logo=tailwindcss" alt="Styled with TailwindCSS">
-  </a>
-  <!-- INI BAGIAN YANG DIPERBAIKI -->
-  <a href="https://github.com/Clis3n/observa-web/blob/main/LICENSE">
-    <img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="License: MIT">
-  </a>
+  <a href="https://laravel.com"><img src="https://img.shields.io/badge/Framework-Laravel_11-FF2D20.svg?style=for-the-badge&logo=laravel" alt="Built with Laravel"></a>
+  <a href="https://livewire.laravel.com"><img src="https://img.shields.io/badge/Livewire-3-4d55d9.svg?style=for-the-badge&logo=livewire" alt="Livewire 3"></a>
+  <a href="https://firebase.google.com"><img src="https://img.shields.io/badge/Backend-Firebase-ffca28.svg?style=for-the-badge&logo=firebase" alt="Powered by Firebase"></a>
+  <a href="https://tailwindcss.com"><img src="https://img.shields.io/badge/UI-TailwindCSS-06B6D4.svg?style=for-the-badge&logo=tailwindcss" alt="Styled with TailwindCSS"></a>
+  <a href="https://github.com/Clis3n/observa-web/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="License: MIT"></a>
 </p>
 
 ---
 
-## 📖 Tentang Proyek
+## 📍 Tentang Proyek
 
-**Observa Web** adalah platform berbasis web yang dirancang sebagai pelengkap dari aplikasi mobile **Observa** di Android. Proyek ini memberikan aksesibilitas yang lebih luas, memungkinkan pengguna untuk mengelola data observasi mereka dari perangkat apa pun dengan browser.
+**Observa Web** adalah platform dashboard berbasis web yang berfungsi sebagai pendamping untuk aplikasi mobile **[Observa di Google Play](https://play.google.com/store/apps/details?id=com.observa.app)**. Proyek ini dibangun untuk memungkinkan pengguna mengelola, memvisualisasikan, dan mengedit data geospasial mereka (titik lokasi dan rute) yang telah mereka kumpulkan melalui aplikasi Android, semuanya dari kenyamanan browser desktop.
 
-Platform ini dibangun di atas fondasi yang kokoh menggunakan **Framework Laravel**, dengan integrasi ke **Firebase** untuk otentikasi dan manajemen data secara real-time, serta antarmuka yang modern menggunakan **Tailwind CSS**.
+Platform ini disinkronkan secara real-time dengan database Firebase, memastikan konsistensi data antara perangkat mobile dan web.
 
-<br>
+### ✨ Fitur Utama
 
-## 📱 Dapatkan Pengalaman Terbaik di Aplikasi Mobile!
+-   🗺️ **Visualisasi Data Interaktif:** Semua data titik lokasi dan rute ditampilkan secara visual di atas peta interaktif menggunakan Mapbox GL JS.
+-   🗂️ **Manajemen Data Terpusat:** Lihat, filter, dan kelola semua catatan perjalanan Anda dalam satu sidebar yang informatif.
+-   🔄 **Sinkronisasi Real-time:** Perubahan yang dibuat di aplikasi mobile akan langsung terlihat di dashboard web, dan sebaliknya, berkat sinkronisasi dengan Firebase Firestore.
+-   ✏️ **Detail & Edit Data:**
+    -   Klik item di sidebar untuk secara otomatis melakukan zoom ke lokasinya di peta.
+    -   Edit judul dan deskripsi data Anda melalui modal yang intuitif.
+    -   **[BARU]** Edit data spasial langsung dari peta: geser marker (titik) atau ubah bentuk garis (rute) dengan mudah.
+-   🔐 **Otentikasi Aman:** Login aman menggunakan akun Google atau dengan memindai kode QR dari aplikasi mobile Observa.
 
-Untuk mendapatkan fungsionalitas penuh dan pengalaman terbaik, kami sangat merekomendasikan Anda untuk mengunduh aplikasi **Observa** di Google Play Store!
+---
 
-Dengan aplikasi mobile, Anda akan mendapatkan:
--   **Akses Offline**: Catat data observasi bahkan tanpa koneksi internet.
--   **Notifikasi Real-time**: Dapatkan pemberitahuan penting langsung di ponsel Anda.
--   **Integrasi Penuh dengan Perangkat**: Manfaatkan kamera, GPS, dan sensor lainnya untuk data yang lebih akurat.
--   **Antarmuka yang Dioptimalkan**: Desain yang dibuat khusus untuk kenyamanan penggunaan di perangkat mobile.
+## 📱 Dapatkan Pengalaman Penuh dengan Aplikasi Mobile!
+
+Dashboard web ini dirancang untuk melengkapi aplikasi mobile Observa. Untuk mendapatkan pengalaman terbaik dan mengumpulkan data di lapangan, unduh aplikasi kami sekarang!
 
 <a href="https://play.google.com/store/apps/details?id=com.observa.app" target="_blank">
-  <img src="https://play.google.com/intl/en_us/badges/static/images/badges/id_badge_web_generic.png" alt="Get it on Google Play" width="200">
+  <img src="https://play.google.com/intl/en_us/badges/static/images/badges/id_badge_web_generic.png" width="200" alt="Get it on Google Play">
 </a>
 
-<br>
+Dengan aplikasi mobile, Anda dapat:
+-   📍 Mencatat titik lokasi dengan koordinat GPS presisi.
+-   🗺️ Merekam rute perjalanan Anda di latar belakang.
+-   📤 Mengimpor dan mengekspor data dalam format KML/KMZ dan Excel.
+-   🎨 Membuat layout peta kustom yang siap untuk dicetak atau dibagikan.
 
-## ✨ Fitur Utama Web
-
--   **📊 Dasbor Analitik**: Visualisasikan data Anda dengan grafik dan bagan yang informatif.
--   **🗂️ Manajemen Data**: Buat, lihat, edit, dan hapus data observasi dengan mudah.
--   **🔒 Otentikasi Aman**: Sistem login yang aman menggunakan Firebase Authentication.
--   **📱 Desain Responsif**: Tampilan yang menyesuaikan dengan sempurna di berbagai ukuran layar.
--   **🔄 Sinkronisasi Data**: Data yang Anda masukkan di web akan tersinkronisasi dengan aplikasi mobile Anda (dan sebaliknya) melalui Firebase.
-
-<br>
+---
 
 ## 📸 Tampilan Aplikasi Web
 
+<!-- PENTING: Ganti URL di bawah ini dengan URL screenshot dashboard Anda yang sebenarnya -->
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Clis3n/observa-web/main/public/landing_assets/image/image-1.png" alt="Tampilan Showcase 1" width="48%">
-   
-  <img src="https://raw.githubusercontent.com/Clis3n/observa-web/main/public/landing_assets/image/image-2.png" alt="Tampilan Showcase 2" width="48%">
+  <img src="https://raw.githubusercontent.com/Clis3n/observa-web/main/public/landing_assets/image/image-1.png" alt="Tampilan Dashboard" width="48%">
+   
+  <img src="https://raw.githubusercontent.com/Clis3n/observa-web/main/public/landing_assets/image/image-2.png" alt="Tampilan Login" width="48%">
 </p>
 
-<br>
+---
 
-## 🛠️ Teknologi yang Digunakan
+## 🚀 Teknologi yang Digunakan
 
--   **Backend Framework**: [Laravel](https://laravel.com/)
--   **Backend Service & Database**: [Google Firebase](https://firebase.google.com/) (menggunakan paket `kreait/laravel-firebase`)
--   **Frontend**: [Blade Templates](https://laravel.com/docs/blade) & [Tailwind CSS](https://tailwindcss.com/)
--   **Build Tool**: [Vite](https://vitejs.dev/)
+-   **Backend:** [Laravel 11](https://laravel.com)
+-   **Frontend:**
+    -   [Livewire 3](https://livewire.laravel.com) untuk komponen interaktif.
+    -   [Alpine.js](https://alpinejs.dev) untuk interaktivitas frontend.
+    -   [Tailwind CSS](https://tailwindcss.com) untuk styling.
+    -   [Vite](https://vitejs.dev) untuk kompilasi aset.
+-   **Database:** [Google Firebase (Firestore)](https://firebase.google.com) sebagai database NoSQL real-time.
+-   **Pemetaan:** [Mapbox GL JS](https://www.mapbox.com/mapbox-gljs) & [Mapbox Draw](https://github.com/mapbox/mapbox-gl-draw) untuk visualisasi dan editing peta.
+-   **Otentikasi:** [Firebase Authentication](https://firebase.google.com/docs/auth)
 
-<br>
+---
 
-## 🚀 Memulai (Getting Started)
+## 🛠️ Panduan Instalasi & Setup Lokal
 
-Ikuti langkah-langkah berikut untuk menjalankan proyek ini di lingkungan lokal Anda.
+Ikuti langkah-langkah ini untuk menjalankan proyek Observa Web di lingkungan lokal Anda.
 
 ### Prasyarat
 
-Pastikan Anda telah menginstal perangkat lunak berikut:
-*   **PHP** (versi 8.1 atau lebih tinggi)
-*   **Composer**
-*   **Node.js** dan **npm**
+-   PHP >= 8.2
+-   Composer
+-   Node.js & NPM
+-   Akun Firebase dengan Firestore dan Authentication diaktifkan.
 
-### Instalasi & Konfigurasi
+### Langkah-langkah Instalasi
 
-1.  **Clone repositori ini:**
+1.  **Clone Repositori**
     ```bash
     git clone https://github.com/Clis3n/observa-web.git
     cd observa-web
     ```
 
-2.  **Instal dependencies PHP via Composer:**
+2.  **Install Dependensi PHP**
     ```bash
     composer install
     ```
 
-3.  **Instal dependencies JavaScript via npm:**
+3.  **Install Dependensi JavaScript**
     ```bash
     npm install
     ```
 
-4.  **Buat file environment:**
-    Salin file `.env.example` menjadi `.env`.
-    ```bash
-    cp .env.example .env
-    ```
+4.  **Setup File `.env`**
+    -   Salin file `.env.example` menjadi `.env`:
+        ```bash
+        cp .env.example .env
+        ```
+    -   Buka file `.env` dan isi variabel yang diperlukan, terutama untuk koneksi Firebase. Anda perlu mendapatkan kredensial Firebase Anda (file JSON) dan menyimpannya sesuai dengan variabel `FIREBASE_CREDENTIALS`.
+        ```dotenv
+        APP_NAME=Observa
+        APP_URL=http://127.0.0.1:8000
 
-5.  **Generate application key:**
+        # Kredensial Firebase
+        FIREBASE_PROJECT_ID="your-project-id"
+        FIREBASE_API_KEY="your-api-key"
+        FIREBASE_AUTH_DOMAIN="your-auth-domain"
+        # ... dan variabel Firebase lainnya
+        ```
+
+5.  **Generate Kunci Aplikasi**
     ```bash
     php artisan key:generate
     ```
 
-6.  **Konfigurasi Firebase:**
-    *   Buka file `.env` yang baru Anda buat.
-    *   Unduh file kredensial *service account* (JSON) dari proyek Firebase Anda.
-    *   Atur variabel `FIREBASE_CREDENTIALS` di file `.env` dengan menunjuk ke path file JSON tersebut.
-      ```env
-      FIREBASE_CREDENTIALS=/path/to/your/firebase_credentials.json
-      ```
-
-7.  **Jalankan Server:**
-    *   Buka **dua terminal** terpisah di direktori proyek.
-    *   Di terminal pertama, jalankan server development Laravel:
-      ```bash
-      php artisan serve
-      ```
-    *   Di terminal kedua, jalankan Vite untuk meng-compile aset frontend:
+6.  **Jalankan Server**
+    Buka **dua terminal** terpisah di direktori proyek.
+    - Di terminal pertama, jalankan Vite untuk kompilasi aset:
       ```bash
       npm run dev
       ```
+    - Di terminal kedua, jalankan server Laravel:
+      ```bash
+      php artisan serve
+      ```
 
-8.  Buka browser Anda dan kunjungi `http://127.0.0.1:8000`.
+7.  **Selesai!**
+    Buka `http://127.0.0.1:8000` di browser Anda untuk melihat landing page.
 
-<br>
+---
 
-## 🤝 Berkontribusi
+## 📂 Struktur Proyek Penting
 
-Kontribusi dari Anda sangat kami hargai! Jika Anda ingin membantu mengembangkan Observa Web, silakan:
+-   `app/Http/Controllers/Auth/FirebaseLoginController.php`: Mengelola logika login dan otentikasi.
+-   `app/Livewire/Dashboard.php`: Komponen utama yang menangani semua logika backend untuk halaman dashboard.
+-   `app/Services/FirebaseService.php`: Service class yang bertanggung jawab untuk semua interaksi dengan Firebase Firestore.
+-   `resources/views/landing.blade.php`: Tampilan untuk landing page.
+-   `resources/views/auth/login.blade.php`: Tampilan untuk halaman login.
+-   `resources/views/livewire/dashboard.blade.php`: Tampilan untuk dashboard, berisi layout sidebar, peta, dan semua skrip Mapbox.
+-   `resources/js/app.js`: Titik masuk untuk aset JavaScript, tempat library Mapbox diimpor.
+-   `routes/web.php`: Mendefinisikan semua rute web untuk aplikasi.
 
-1.  **Fork** repositori ini.
-2.  Buat **Branch** baru untuk fitur Anda (`git checkout -b fitur/NamaFitur`).
-3.  **Commit** perubahan Anda (`git commit -m 'Menambahkan fitur A'`).
-4.  **Push** ke Branch tersebut (`git push origin fitur/NamaFitur`).
-5.  Buka **Pull Request**.
+---
 
-Jangan ragu untuk membuka *issue* jika Anda menemukan bug atau memiliki saran.
+## 🤝 Kontribusi
 
-<br>
+Kontribusi, isu, dan permintaan fitur sangat diterima! Jangan ragu untuk membuka *issue* baru atau membuat *pull request*.
 
-## 📄 Lisensi
+1.  Fork proyek ini.
+2.  Buat branch fitur baru (`git checkout -b feature/AmazingFeature`).
+3.  Commit perubahan Anda (`git commit -m 'Add some AmazingFeature'`).
+4.  Push ke branch (`git push origin feature/AmazingFeature`).
+5.  Buka sebuah Pull Request.
 
-Proyek ini didistribusikan di bawah Lisensi MIT. Lihat file `LICENSE` untuk informasi lebih lanjut.
+---
+
+## 📜 Lisensi
+
+Didistribusikan di bawah Lisensi MIT. Lihat `LICENSE` untuk informasi lebih lanjut.
 
 ---
 
@@ -169,5 +183,5 @@ Proyek ini didistribusikan di bawah Lisensi MIT. Lihat file `LICENSE` untuk info
 </p>
 
 <p align="center">
-  Dibuat dengan ❤️ oleh <b>Clis3n</b>
+  Dibuat dengan 💛 oleh <b>OBSERVA</b>
 </p>
