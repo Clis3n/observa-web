@@ -5,7 +5,7 @@
 <h1 align="center">Observa Web</h1>
 
 <p align="center">
-  <strong>Versi Web dari Aplikasi Android Observa</strong>
+  <strong>Versi Web dari Aplikasi Mobile Observa</strong>
 </p>
 
 <p align="center">
