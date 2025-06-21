@@ -11,10 +11,8 @@
 <p align="center">
   <!-- Badges/Lencana yang Akurat -->
   <a href="https://laravel.com"><img src="https://img.shields.io/badge/Framework-Laravel_11-FF2D20.svg?style=for-the-badge&logo=laravel" alt="Built with Laravel"></a>
-  <a href="https://livewire.laravel.com"><img src="https://img.shields.io/badge/Livewire-3-4d55d9.svg?style=for-the-badge&logo=livewire" alt="Livewire 3"></a>
   <a href="https://firebase.google.com"><img src="https://img.shields.io/badge/Backend-Firebase-ffca28.svg?style=for-the-badge&logo=firebase" alt="Powered by Firebase"></a>
   <a href="https://tailwindcss.com"><img src="https://img.shields.io/badge/UI-TailwindCSS-06B6D4.svg?style=for-the-badge&logo=tailwindcss" alt="Styled with TailwindCSS"></a>
-  <a href="https://github.com/Clis3n/observa-web/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="License: MIT"></a>
 </p>
 
 ---
