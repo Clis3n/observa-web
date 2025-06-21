@@ -1,6 +1,6 @@
 <p align="center">
-  <!-- Logo diambil langsung dari repositori Anda -->
-  <img src="https://raw.githubusercontent.com/Clis3n/observa-web/main/static/favicon.png" alt="Observa Logo" width="120">
+  <!-- Tautan gambar sudah diperbaiki ke lokasi yang benar di repo Anda -->
+  <img src="https://raw.githubusercontent.com/Clis3n/observa-web/main/public/landing_assets/image/icon.svg" alt="Observa Logo" width="120">
 </p>
 
 <h1 align="center">Observa Web</h1>
@@ -62,9 +62,10 @@ Dengan aplikasi mobile, Anda akan mendapatkan:
 ## 📸 Tampilan Aplikasi Web
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Clis3n/observa-web/main/static/assets/images/showcase-1.svg" alt="Tampilan Showcase 1" width="48%">
+  <!-- Tautan gambar sudah diperbaiki ke lokasi yang benar di repo Anda -->
+  <img src="https://raw.githubusercontent.com/Clis3n/observa-web/main/public/landing_assets/image/showcase-1.svg" alt="Tampilan Showcase 1" width="48%">
    
-  <img src="https://raw.githubusercontent.com/Clis3n/observa-web/main/static/assets/images/showcase-2.svg" alt="Tampilan Showcase 2" width="48%">
+  <img src="https://raw.githubusercontent.com/Clis3n/observa-web/main/public/landing_assets/image/showcase-2.svg" alt="Tampilan Showcase 2" width="48%">
 </p>
 
 <br>
