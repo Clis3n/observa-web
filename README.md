@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Clis3n/observa-web/main/public/landing_assets/image/icon.svg" alt="Observa Logo" width="120">
+  <img src="https://raw.githubusercontent.com/Clis3n/observa-web/main/public/landing_assets/image/hero-illustration.svg" alt="Observa Logo" width="120">
 </p>
 
 <h1 align="center">Observa Web</h1>
@@ -19,8 +19,9 @@
   <a href="https://tailwindcss.com">
     <img src="https://img.shields.io/badge/Styled%20with-TailwindCSS-06B6D4.svg?style=for-the-badge&logo=tailwindcss" alt="Styled with TailwindCSS">
   </a>
+  <!-- INI BAGIAN YANG DIPERBAIKI -->
   <a href="https://github.com/Clis3n/observa-web/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/Clis3n/observa-web?style=for-the-badge" alt="License">
+    <img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="License: MIT">
   </a>
 </p>
 
