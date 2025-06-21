@@ -23,7 +23,9 @@
 
 Platform ini disinkronkan secara real-time dengan database Firebase, memastikan konsistensi data antara perangkat mobile dan web.
 
-### ✨ Fitur Utama
+---
+
+## ✨ Fitur Utama
 
 -   🗺️ **Visualisasi Data Interaktif:** Semua data titik lokasi dan rute ditampilkan secara visual di atas peta interaktif menggunakan Mapbox GL JS.
 -   🗂️ **Manajemen Data Terpusat:** Lihat, filter, dan kelola semua catatan perjalanan Anda dalam satu sidebar yang informatif.
