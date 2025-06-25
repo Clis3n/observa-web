@@ -46,12 +46,17 @@ class Dashboard extends Component
         $userId = Session::get('firebase_user_id');
         if (!$userId) return;
 
-        // Hanya muat data jika kosong untuk mencegah reset saat seleksi
-        if (empty($this->combinedData)) {
-            $this->notes = $this->firebaseService->getNotes($userId);
-            $this->routes = $this->firebaseService->getRoutes($userId);
-            $this->combinedData = array_merge($this->notes, $this->routes);
-            usort($this->combinedData, fn($a, $b) => strcmp($b['timestamp'] ?? '1970', $a['timestamp'] ?? '1970'));
+        // [PERBAIKAN UTAMA] Hapus kondisi 'if empty'. Selalu ambil data terbaru dari Firebase.
+        $this->notes = $this->firebaseService->getNotes($userId);
+        $this->routes = $this->firebaseService->getRoutes($userId);
+        $this->combinedData = array_merge($this->notes, $this->routes);
+        usort($this->combinedData, fn($a, $b) => strcmp($b['timestamp'] ?? '1970', $a['timestamp'] ?? '1970'));
+
+        // [PENTING] Sinkronkan item yang dipilih dengan data baru.
+        // Ini akan menghapus ID dari item yang mungkin telah dihapus di perangkat lain.
+        if ($this->isSelectionMode) {
+            $existingTypedIds = collect($this->combinedData)->map(fn($item) => $item['type'] . ':' . $item['id'])->all();
+            $this->selectedIds = array_intersect($this->selectedIds, $existingTypedIds);
         }
 
         $this->dispatch('dataUpdated', data: $this->combinedData);
@@ -60,40 +65,24 @@ class Dashboard extends Component
     // =================================================================
     // LOGIKA KLIK DAN SELEKSI
     // =================================================================
-
-    /**
-     * Method "pintar" yang menangani semua klik pada item daftar.
-     * Ia akan memutuskan tindakan berdasarkan $isSelectionMode.
-     */
     public function handleItemClick($itemId, $itemType)
     {
         if ($this->isSelectionMode) {
-            // Jika dalam mode seleksi, panggil logika untuk memilih/membatalkan pilihan.
             $typedId = $itemType . ':' . $itemId;
             $this->selectItemById($typedId);
         } else {
-            // Jika dalam mode normal, panggil logika untuk menampilkan detail.
             $this->selectItem($itemId);
         }
     }
-
-    /**
-     * Mengaktifkan/menonaktifkan mode seleksi.
-     */
     public function toggleSelectionMode()
     {
         $this->isSelectionMode = !$this->isSelectionMode;
         if (!$this->isSelectionMode) {
             $this->selectedIds = [];
         } else {
-            // Saat masuk mode seleksi, pastikan tidak ada item detail yang ditampilkan
             $this->clearSelection();
         }
     }
-
-    /**
-     * Menambah atau menghapus satu item dari daftar yang dipilih.
-     */
     public function selectItemById($typedId)
     {
         if (in_array($typedId, $this->selectedIds)) {
@@ -102,22 +91,12 @@ class Dashboard extends Component
             $this->selectedIds[] = $typedId;
         }
     }
-
-    /**
-     * Computed Property untuk mengecek apakah semua item sudah terpilih.
-     */
     #[Computed]
     public function areAllItemsSelected(): bool
     {
-        if (empty($this->combinedData) || !$this->isSelectionMode) {
-            return false;
-        }
+        if (empty($this->combinedData) || !$this->isSelectionMode) return false;
         return count($this->selectedIds) === count($this->combinedData);
     }
-
-    /**
-     * Menangani klik pada tombol "Pilih Semua / Batal Pilih Semua".
-     */
     public function toggleSelectAll()
     {
         if ($this->areAllItemsSelected()) {
@@ -126,33 +105,12 @@ class Dashboard extends Component
             $this->selectAllItems();
         }
     }
-
-    /**
-     * Helper untuk memilih semua item.
-     */
-    public function selectAllItems()
-    {
-        $this->selectedIds = collect($this->combinedData)->map(function ($item) {
-            return $item['type'] . ':' . $item['id'];
-        })->all();
-    }
-
-    /**
-     * Helper untuk membatalkan pilihan semua item.
-     */
-    public function unselectAllItems()
-    {
-        $this->selectedIds = [];
-    }
+    public function selectAllItems() { $this->selectedIds = collect($this->combinedData)->map(fn ($item) => $item['type'] . ':' . $item['id'])->all(); }
+    public function unselectAllItems() { $this->selectedIds = []; }
 
     // =================================================================
     // LOGIKA TAMPILAN DETAIL & EDIT
     // =================================================================
-
-    /**
-     * Menampilkan detail item di sidebar dan peta.
-     * Tidak lagi memiliki listener @On, dipanggil langsung oleh handleItemClick.
-     */
     public function selectItem($itemId)
     {
         if ($this->isSelectionMode) return;
@@ -163,13 +121,11 @@ class Dashboard extends Component
             $this->dispatch('zoomToItem', item: $data);
         }
     }
-
     public function clearSelection()
     {
         if($this->isEditMode) $this->cancelEditMode();
         $this->selectedItem = null;
     }
-
     public function enterEditMode() { if (!$this->selectedItem) return; $this->isEditMode = true; $this->originalItemState = $this->selectedItem; $this->dispatch('startMapEditing', item: $this->selectedItem); }
     public function cancelEditMode() { if (!$this->originalItemState) return; $this->isEditMode = false; $this->selectedItem = $this->originalItemState; $this->originalItemState = null; $this->dispatch('stopMapEditing', item: $this->selectedItem); }
     #[On('coordinatesUpdatedFromMap')]

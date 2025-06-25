@@ -1,4 +1,4 @@
-<div wire:poll.15s.keep-alive="@if(!$isEditMode) loadData @endif">
+<div wire:poll.5s.keep-alive="@if(!$isEditMode) loadData @endif">
     <!-- Loading Overlay -->
     <div x-data x-show="$store.dashboardState.isLoading"
          x-transition:leave="transition ease-in duration-300"
